@@ -1,0 +1,22 @@
+[pyrogram]
+api_id = 12345
+api_hash = 0123456789abc0123456789abc
+
+[basic]
+bot_token = 111:abc
+admin = 777000
+channel_id = 0
+
+[plugins]
+root = plugins
+include = process
+
+[proxy]
+enabled = False
+hostname = 127.0.0.1
+port = 1080
+
+[redis]
+host = 127.0.0.1
+port = 6379
+db = 0

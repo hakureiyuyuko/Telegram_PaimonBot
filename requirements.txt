@@ -1,0 +1,10 @@
+Pyrogram>=1.2.9
+Tgcrypto>=1.2.2
+Pillow>=8.1.0
+Redis>=3.5.3
+bs4>=0.0.1
+beautifulsoup4>=4.9.3
+requests>=2.25.1
+xpinyin>=0.7.6
+lxml>=4.6.3
+httpx>=0.18.2
