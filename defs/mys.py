@@ -112,7 +112,8 @@ async def draw_pic(uid):
     id_img = Image.open(f"{working_dir}{sep}assets{sep}images{sep}level.png").resize((250, 155),
                                                                                      Image.BILINEAR).convert("RGBA")
     # 上右部背景
-    level_img = Image.open(f"{working_dir}{sep}assets{sep}images{sep}level2.png").resize((180, 180), "RGBA")
+    level_img = Image.open(f"{working_dir}{sep}assets{sep}images{sep}level2.png").resize((180, 180),
+                                                                                         Image.BILINEAR).convert("RGBA")
     # 中部大背景
     p1_img = Image.open(f"{working_dir}{sep}assets{sep}images{sep}p1.png").resize((600, 300),
                                                                                   Image.BILINEAR).convert("RGBA")
@@ -148,7 +149,7 @@ async def draw_pic(uid):
     img_canvas.paste(char5_img, (440, 540), char5_img)
     img_canvas.paste(char6_img, (540, 540), char6_img)
 
-    text_draw.text((240, 80), "账号信息", 'lightcyan', ys_font(23))
+    text_draw.text((275, 15), "账号信息", 'lightcyan', ys_font(23))
     text_draw.text((230, 80), f'UID {uid}', 'lightcyan', ys_font(25))
     if uid[0] == "1":
         text_draw.text((230, 130), "服务器 天空岛", 'lightcyan', ys_font(25))

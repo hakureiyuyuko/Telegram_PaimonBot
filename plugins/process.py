@@ -6,6 +6,7 @@ from plugins.almanac import almanac_msg
 from plugins.challenge import tf_msg, wq_msg, zb_msg
 from plugins.character import character_msg, mz_msg
 from plugins.weapons import weapon_msg
+from plugins.fortunate import fortunate_msg, set_fortunate_img
 from plugins.mys import mys_msg, promote_command
 from defs.log import log
 
@@ -56,6 +57,15 @@ async def process_private_msg(client: Client, message: Message):
     if '命座' in message.text:
         await mz_msg(client, message)
         await log(client, message, '查询角色命座')
+    # 设置运势
+    if '设置运势' in message.text:
+        await set_fortunate_img(client, message)
+        await log(client, message, '设置运势角色')
+        return
+    # 运势查询
+    if '运势' in message.text:
+        await fortunate_msg(client, message)
+        await log(client, message, '查询今日运势')
     # 账号信息（cookie 过期过快  不推荐启用）
     # if '账号信息' in message.text or '用户信息' in message.text:
     #    await mys_msg(client, message)
@@ -97,10 +107,19 @@ async def process_group_msg(client: Client, message: Message):
     if text.startswith('命座'):
         await mz_msg(client, message)
         await log(client, message, '查询角色命座')
+    # 运势查询
+    if text.startswith('运势') or text.startswith('今日运势'):
+        await fortunate_msg(client, message)
+        await log(client, message, '查询今日运势')
+    # 设置运势
+    if text.startswith('设置运势'):
+        await set_fortunate_img(client, message)
+        await log(client, message, '设置运势角色')
 
 
 @Client.on_message(Filters.new_chat_members)
 async def send_self_intro(client: Client, message: Message):
     # 发送欢迎消息
-    await message.reply('感谢邀请小派蒙到本群！\n请使用 /help 查看咱已经学会的功能。', quote=True)
-    await log(client, message, '邀请入群')
+    if message.new_chat_members[0].is_self:
+        await message.reply('感谢邀请小派蒙到本群！\n请使用 /help 查看咱已经学会的功能。', quote=True)
+        await log(client, message, '邀请入群')

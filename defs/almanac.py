@@ -102,7 +102,11 @@ def generate_almanac():
 def get_almanac_image():
     # 判断是否需要重新生成黄历，无 redis 不生成。
     if redis_status():
-        if not redis.get('almanac').decode() == time.strftime("%Y-%m-%d"):
+        try:
+            date = redis.get('almanac').decode()
+        except AttributeError:
+            date = None
+        if not date == time.strftime("%Y-%m-%d"):
             generate_almanac()
             return f'{working_dir}{sep}temp{sep}almanac.png'
         else:
