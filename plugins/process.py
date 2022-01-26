@@ -8,6 +8,7 @@ from plugins.character import character_msg, mz_msg
 from plugins.event import event_msg
 from plugins.weapons import weapon_msg
 from plugins.fortunate import fortunate_msg, set_fortunate_img
+from plugins.artifacts import artifacts_msg
 from plugins.artifact_rate import artifact_rate_msg
 from plugins.query_resource_points import inquire_resource_points, inquire_resource_list
 from plugins.mys import mys_msg, promote_command
@@ -72,6 +73,10 @@ async def process_private_msg(client: Client, message: Message):
     if '运势' in message.text:
         await fortunate_msg(client, message)
         await log(client, message, '查询今日运势')
+    # 圣遗物查询
+    if '圣遗物详情' in message.text:
+        await artifacts_msg(client, message)
+        await log(client, message, '查询圣遗物详情')
     # 圣遗物评分
     if '圣遗物评分' in message.text:
         await message.reply("图呢？\n*请将命令与截图一起发送", quote=True)
@@ -135,6 +140,10 @@ async def process_group_msg(client: Client, message: Message):
     if text.startswith('设置运势'):
         await set_fortunate_img(client, message)
         await log(client, message, '设置运势角色')
+    # 圣遗物查询
+    if text.startswith('圣遗物详情'):
+        await artifacts_msg(client, message)
+        await log(client, message, '查询圣遗物详情')
     # 圣遗物评分
     if text.startswith('圣遗物评分'):
         await message.reply("图呢？\n*请将命令与截图一起发送")

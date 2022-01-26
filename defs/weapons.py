@@ -21,7 +21,6 @@ def get_url(name: str):
 
 
 async def get_weapon(name: str):
-    name = str(name)
     for i in weapon_all:
         if name in i['name']:
             try:
