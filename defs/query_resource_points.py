@@ -74,6 +74,9 @@ async def download_icon(url):
 
 async def download_json(url):
     # 获取资源数据，返回 JSON
+    if url == POINT_LIST_URL:
+        with open(f"assets{os.sep}data{os.sep}list.json", "rb") as f:
+            return json.loads(f.read())
     async with httpx.AsyncClient() as client:
         resp = await client.get(url=url)
         if resp.status_code != 200:
