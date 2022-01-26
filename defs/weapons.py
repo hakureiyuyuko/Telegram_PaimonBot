@@ -1,8 +1,8 @@
-import difflib, json, requests
+import difflib, json, requests, yaml, re
 from os import getcwd, sep
-from bs4 import BeautifulSoup
 from xpinyin import Pinyin
 from json.decoder import JSONDecodeError
+from defs.character import repl
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                          "Chrome/89.0.4389.82 Safari/537.36"}
@@ -13,10 +13,11 @@ weapon_type = {1: "单手剑", 2: "双手剑", 3: "弓", 4: "法器", 5: "长枪
 
 
 def get_url(name: str):
-    re = requests.get(url=f'https://genshin.minigg.cn/?data={name}', headers=headers)
-    soup = BeautifulSoup(re.text, "lxml").body
-    user_dict = json.loads(soup.text)
-    return user_dict['icon']
+    res = requests.get(url=f'https://api.minigg.cn/weapons?query={name}', headers=headers)
+    if res.text == "undefined\n":
+        raise JSONDecodeError("", "", 0)
+    py_dict = yaml.safe_load(re.sub(r'\[? *(, *)+\]?', repl, res.text))
+    return py_dict
 
 
 async def get_weapon(name: str):
@@ -24,8 +25,8 @@ async def get_weapon(name: str):
     for i in weapon_all:
         if name in i['name']:
             try:
-                url = get_url(i['name'][0])
-            except JSONDecodeError:
+                url = (get_url(i['name'][0]))["images"]["image"]
+            except (JSONDecodeError, KeyError):
                 url = None
             text = f"<b>{i['name'][0]}</b> {'★' * i['star']}\n" \
                    f"<b>类型：</b>{weapon_type[i['type']]}\n" \
@@ -34,6 +35,20 @@ async def get_weapon(name: str):
                    f"<b>满级副属性：</b>{i['max_attribute']}\n" \
                    f"<b>技能：</b>{i['skill']}"
             return text, url
+    try:
+        data = get_url(str(name))
+        text = f"<b>{data['name']}</b> {'★' * int(data['rarity'])}\n" \
+               f"<b>类型：</b>{data['weapontype']}\n" \
+               f"<b>1级基础攻击力：</b>{data['baseatk']}\n" \
+               f"<b>副属性：</b>{data['substat']}\n" \
+               f"<b>描述：</b>{data['description']}"
+        try:
+            url = data["images"]["image"]
+        except KeyError:
+            url = None
+        return text, url
+    except (JSONDecodeError, KeyError):
+        pass
     correct_result = auto_correct(name)
     if len(correct_result) > 1:
         return f"派蒙这里没找到武器 <code>{name}</code> ，你是要搜索如下的武器吗?\n{montage_result(correct_result)}", None

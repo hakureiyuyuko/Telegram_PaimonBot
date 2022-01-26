@@ -43,10 +43,10 @@ async def process_private_msg(client: Client, message: Message):
         await tf_msg(client, message)
         await log(client, message, '查询天赋副本')
     # # 武器查询
-    # if '武器资料' in message.text or '武器查询' in message.text:
-    #     await weapon_msg(client, message)
-    #     await log(client, message, '查询武器资料')
-    #     return
+    if '武器资料' in message.text or '武器查询' in message.text:
+        await weapon_msg(client, message)
+        await log(client, message, '查询武器资料')
+        return
     # 副本武器
     if '武器' in message.text:
         await wq_msg(client, message)
@@ -96,10 +96,10 @@ async def process_group_msg(client: Client, message: Message):
     if msg_list[0] == '/help':
         await help_command(client, message)
     # # 武器查询
-    # if text.startswith('武器查询') or text.startswith('武器资料'):
-    #     await weapon_msg(client, message)
-    #     await log(client, message, '查询武器资料')
-    #     return
+    if text.startswith('武器查询') or text.startswith('武器资料'):
+        await weapon_msg(client, message)
+        await log(client, message, '查询武器资料')
+        return
     # 副本武器
     if text[-2:] == '武器':
         await wq_msg(client, message)

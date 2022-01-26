@@ -39,7 +39,7 @@ async def leave_command(client: Client, message: Message):
 
 
 async def help_command(client: Client, message: Message):
-    text = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.2.0beta By Xtao-Labs\n\n' \
+    text = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.2.3beta By Xtao-Labs\n\n' \
            '🔅 以下是小派蒙我学会了的功能（部分）：\n' \
            '① [武器/今日武器] 查看今日武器材料和武器\n' \
            '② [天赋/今日天赋] 查看今日天赋材料和角色\n' \
@@ -51,12 +51,11 @@ async def help_command(client: Client, message: Message):
            '   💠 <code>角色查询 重云</code>\n' \
            '⑥ [命座 名字] 查看人物命座\n' \
            '   💠 <code>命座 重云一命</code>\n' \
-           '⑦ [原神黄历] 查看随机生成的原神黄历\n' \
-           '⑧ [活动列表] 查看今日活动列表和祈愿列表\n' \
-           '⑨ [圣遗物评分] 我也想拥有这种分数的圣遗物(切实)\n' \
-           '⑩ [哪里有 (资源名)] 查看资源的位置\n' \
-           '(11) [资源列表] 查看原神所有资源'
+           '⑦ [武器查询 武器名] 查看武器资料\n' \
+           '   💠 <code>武器查询 沐浴龙血的剑</code>\n' \
+           '⑧ [原神黄历] 查看随机生成的原神黄历\n' \
+           '⑨ [活动列表] 查看今日活动列表和祈愿列表\n' \
+           '⑩ [圣遗物评分] 我也想拥有这种分数的圣遗物(切实)\n' \
+           '(11) [哪里有 (资源名)] 查看资源的位置\n' \
+           '(12) [资源列表] 查看原神所有资源'
     await message.reply(text, quote=True, disable_web_page_preview=True)
-
-# '④ [武器查询 武器名] 查看武器资料\n' \
-# '   💠 <code>武器查询 沐浴龙血的剑</code>\n' \
