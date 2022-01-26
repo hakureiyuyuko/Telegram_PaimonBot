@@ -1,6 +1,12 @@
-from pyrogram import Client
-from pyrogram.types import Message
+import json
+from os import sep
+from os.path import exists
+
+from pyrogram import Client, emoji
+from pyrogram.types import Message, InlineQuery
 from pyrogram import filters as Filters
+
+from plugins.mys2 import mys2_msg, mys2_qun_msg
 from plugins.start import welcome_command, ping_command, help_command, leave_command
 from plugins.almanac import almanac_msg
 from plugins.challenge import tf_msg, wq_msg, zb_msg
@@ -12,6 +18,8 @@ from plugins.artifacts import artifacts_msg
 from plugins.artifact_rate import artifact_rate_msg
 from plugins.query_resource_points import inquire_resource_points, inquire_resource_list
 from plugins.mys import mys_msg, promote_command
+
+from defs.inline_query_result_cached_media import InlineQueryResultCachedDocument
 from defs.log import log
 
 
@@ -88,6 +96,8 @@ async def process_private_msg(client: Client, message: Message):
     if '资源列表' in message.text:
         await inquire_resource_list(client, message)
         await log(client, message, '查询资源列表')
+    if '米游社' in message.text:
+        await mys2_msg(client, message)
     # 账号信息（cookie 过期过快  不推荐启用）
     # if '账号信息' in message.text or '用户信息' in message.text:
     #    await mys_msg(client, message)
@@ -155,6 +165,9 @@ async def process_group_msg(client: Client, message: Message):
     if text.startswith('资源列表'):
         await inquire_resource_list(client, message)
         await log(client, message, '查询资源列表')
+    # 米游社功能
+    if text.startswith('米游社'):
+        await mys2_qun_msg(client, message)
 
 
 @Client.on_message(Filters.photo)
@@ -166,9 +179,42 @@ async def process_photo(client: Client, message: Message):
         await log(client, message, '圣遗物评分')
 
 
+@Client.on_message(Filters.audio & Filters.private & ~Filters.edited)
+async def process_audio(client: Client, message: Message):
+    await message.reply(f"File_id：<code>{message.audio.file_id}</code>")
+
+
 @Client.on_message(Filters.new_chat_members)
 async def send_self_intro(client: Client, message: Message):
     # 发送欢迎消息
     if message.new_chat_members[0].is_self:
         await message.reply('感谢邀请小派蒙到本群！\n请使用 /help 查看咱已经学会的功能。', quote=True)
         await log(client, message, '邀请入群')
+
+
+@Client.on_inline_query()
+async def inline_process(client: Client, query: InlineQuery):
+    data = []
+    text = query.query
+    nums = 0
+    if not exists(f"assets{sep}voice{sep}voice.json"):
+        return
+    with open(f"assets{sep}voice{sep}voice.json", "r", encoding='utf-8') as f:
+        data_ = json.load(f)
+    for index, value in enumerate(data_):
+        if text != "":
+            if text in value:
+                data.append(InlineQueryResultCachedDocument(value, file_id=data_[value]))
+                nums += 1
+        else:
+            data.append(InlineQueryResultCachedDocument(value, file_id=data_[value]))
+            nums += 1
+        if nums >= 25:
+            break
+    if nums == 0:
+        return await query.answer(
+                results=[],
+                switch_pm_text=f'{emoji.CROSS_MARK} 字符串 "{text}" 没有搜索到任何结果',
+                switch_pm_parameter="start",
+            )
+    await query.answer(data)

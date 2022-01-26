@@ -141,3 +141,5 @@ config.ini
 temp/
 assets/icon/
 assets/data/list.json
+assets/voice/voice.json
+ID_DATA.db
