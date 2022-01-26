@@ -5,6 +5,7 @@ from plugins.start import welcome_command, ping_command, help_command, leave_com
 from plugins.almanac import almanac_msg
 from plugins.challenge import tf_msg, wq_msg, zb_msg
 from plugins.character import character_msg, mz_msg
+from plugins.event import event_msg
 from plugins.weapons import weapon_msg
 from plugins.fortunate import fortunate_msg, set_fortunate_img
 from plugins.artifact_rate import artifact_rate_msg
@@ -31,6 +32,9 @@ async def process_private_msg(client: Client, message: Message):
     if '黄历' in message.text:
         await almanac_msg(client, message)
         await log(client, message, '查询原神黄历')
+    if '活动列表' in message.text:
+        await event_msg(client, message)
+        await log(client, message, '查询活动列表')
     # 授权管理员
     # if msg_list[0] == '/promote':
     #    await promote_command(client, message)
@@ -52,13 +56,13 @@ async def process_private_msg(client: Client, message: Message):
         await zb_msg(client, message)
         await log(client, message, '查询周本')
     # # 角色查询
-    # if '角色资料' in message.text or '角色简介' in message.text or '角色查询' in message.text:
-    #     await character_msg(client, message)
-    #     await log(client, message, '查询角色资料')
+    if '角色资料' in message.text or '角色简介' in message.text or '角色查询' in message.text:
+        await character_msg(client, message)
+        await log(client, message, '查询角色资料')
     # # 命座查询
-    # if '命座' in message.text:
-    #     await mz_msg(client, message)
-    #     await log(client, message, '查询角色命座')
+    if '命座' in message.text:
+        await mz_msg(client, message)
+        await log(client, message, '查询角色命座')
     # 设置运势
     if '设置运势' in message.text:
         await set_fortunate_img(client, message)
@@ -104,6 +108,9 @@ async def process_group_msg(client: Client, message: Message):
     if message.text == '原神黄历':
         await almanac_msg(client, message)
         await log(client, message, '查询原神黄历')
+    if message.text == '活动列表':
+        await event_msg(client, message)
+        await log(client, message, '查询活动列表')
     # 天赋
     if text[-2:] == '天赋':
         await tf_msg(client, message)
@@ -113,13 +120,13 @@ async def process_group_msg(client: Client, message: Message):
         await zb_msg(client, message)
         await log(client, message, '查询周本')
     # # 角色查询
-    # if text.startswith('角色资料') or text.startswith('角色简介') or text.startswith('角色查询'):
-    #     await character_msg(client, message)
-    #     await log(client, message, '查询角色资料')
+    if text.startswith('角色资料') or text.startswith('角色简介') or text.startswith('角色查询'):
+        await character_msg(client, message)
+        await log(client, message, '查询角色资料')
     # # 命座查询
-    # if text.startswith('命座'):
-    #     await mz_msg(client, message)
-    #     await log(client, message, '查询角色命座')
+    if text.startswith('命座'):
+        await mz_msg(client, message)
+        await log(client, message, '查询角色命座')
     # 运势查询
     if text.startswith('运势') or text.startswith('今日运势'):
         await fortunate_msg(client, message)

@@ -8,3 +8,4 @@ requests>=2.27.1
 xpinyin>=0.7.6
 lxml>=4.6.3
 httpx>=0.21.3
+pyyaml>=6.0

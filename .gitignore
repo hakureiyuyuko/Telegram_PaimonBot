@@ -139,3 +139,5 @@ config.ini
 
 # Data
 temp/
+assets/icon/
+assets/data/list.json

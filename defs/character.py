@@ -1,4 +1,4 @@
-import difflib, json, re, bs4, requests
+import difflib, json, re, requests, yaml
 from os import getcwd, sep
 from xpinyin import Pinyin
 from json.decoder import JSONDecodeError
@@ -17,12 +17,39 @@ def nic2name(name):
     return name
 
 
+def repl(match):
+    content = re.sub(" ", "",match.group(0))
+    length = len(content) - 1
+    result = ''
+    if content[0] == '[':
+        result = '[""'
+        length -= 1
+
+    after = ','
+    if content[-1] == ']':
+        length -= 1
+        after += '""]'
+
+    return result + (',""' * length) + after
+
+
 def get_json(name: str) -> dict:
+    if name not in ["空", "荧"]:
+        name = nic2name(name)
+    res = requests.get(f'https://api.minigg.cn/characters?query={name}')
+    if res.text == "undefined\n":
+        raise JSONDecodeError("", "", 0)
+    py_dict = yaml.safe_load(re.sub(r'\[? *(, *)+\]?', repl, res.text))
+    return py_dict
+
+
+def get_json_mz(name: str) -> dict:
     name = nic2name(name)
-    res = requests.get(f'https://genshin.minigg.cn/?data={name}')
-    soup = bs4.BeautifulSoup(res.text, "lxml").body
-    character_json = json.loads(soup.text)
-    return character_json
+    res = requests.get(f'https://api.minigg.cn/constellations?query={name}')
+    if res.text == "undefined\n":
+        raise JSONDecodeError("", "", 0)
+    py_dict = yaml.safe_load(re.sub(r'\[? *(, *)+\]?', repl, res.text))
+    return py_dict
 
 
 def num_to_char(num):
@@ -51,12 +78,11 @@ def char_to_char(char):
 
 def get_character(name: str):
     # 角色常见昵称转换为官方角色名
-    nick_name = nic2name(name)
+    nick_name = name
+    if name not in ["空", "荧"]:
+        nick_name = nic2name(name)
     try:
-        data0 = get_json(nick_name)
-        data = data0['角色信息']
-        if nick_name == '旅行者':
-            data["简介"] = '无'
+        data = get_json(nick_name)
     except JSONDecodeError:
         correct_result = auto_correct(nick_name)
         if correct_result is None:
@@ -69,17 +95,20 @@ def get_character(name: str):
             else:
                 return f"派蒙这里没找到 <code>{name}</code> ，你是要搜索 <code>{correct_result[0]}</code> 吗", None
     result = f"<b>{nick_name}</b>\n" \
-             f"<b>命之座：</b>{data['命之座']}\n" \
-             f"<b>所属：</b>{data['所属']}\n" \
-             f"<b>武器类型：</b>{data['武器类型']}\n" \
-             f"<b>生日：</b>{data['生日']}\n"
+             f"<b>稀有度：</b>{data['rarity']}\n" \
+             f"<b>命之座：</b>{data['constellation']}\n" \
+             f"<b>所属：</b>{data['affiliation']}\n" \
+             f"<b>突破加成：</b>{data['substat']}\n" \
+             f"<b>武器类型：</b>{data['weapontype']}\n" \
+             f"<b>生日：</b>{data['birthday']}\n" \
+             f"<b>神之眼/心：</b>{data['element']}\n" \
+             f"<b>称号：</b>{data['title']}\n" \
+             f"<b>CV：</b>{data['cv']['chinese']}\n" \
+             f"<b>简介：</b>{data['description']}"
     try:
-        result += f"<b>神之眼：</b>{data['神之眼']}\n"
+        url = data["images"]["cover1"]
     except KeyError:
-        result += f"<b>神之心：</b>{data['神之心']}\n"
-    result += f"<b>称号：</b>{data['称号']}\n" \
-              f"<b>简介：</b>{data['简介']}"
-    url = data0['avatar'].split('?')[0]
+        url = data["images"]["icon"]
     return result, url
 
 
@@ -99,24 +128,26 @@ async def get_mz(name_mz: str) -> str:
         except IndexError:
             num = -1
     try:
-        data0 = get_json(name)
-        data = data0['命之座']
+        data = get_json_mz(name)
     except:
         return f"派蒙这没有 <code>{name}</code> ，可能是官方资料没有该资料，可能是你输入的名字不正确哦。"
     result = ''
     if num == -1:
         n = 1
-        for key, value in data.items():
-            result = result + num_to_char(n) + '命' + key + ':' + str(value['introduction']) + '\n'
+        for i in range(6):
+            try:
+                result = result + f"{num_to_char(n)}命{data['c{}'.format(n)]['name']}：" \
+                                  f"{data['c{}'.format(n)]['effect'].replace('*', '')}\n"
+            except KeyError:
+                break
             n = n + 1
         return f'{name}' + '\n' + result
     elif 0 < num < 7:
-        n = 1
-        for key, value in data.items():
-            result = num_to_char(num) + '命' + key + ':' + str(value['introduction'])
-            if n == num:
-                return f'{name}的' + result
-            n = n + 1
+        try:
+            return f'{name}的' + f"{num_to_char(num)}命{data['c{}'.format(num)]['name']}：" \
+                       f"{data['c{}'.format(num)]['effect'].replace('*', '')}\n"
+        except KeyError:
+            return f"查询错误!你家 <code>{name}</code> 有 <code>{num}</code> 命？？"
     elif num == 0:
         return "你搁这原地tp呢？"
     else:
