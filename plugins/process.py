@@ -6,6 +6,7 @@ from pyrogram import Client, emoji
 from pyrogram.types import Message, InlineQuery, CallbackQuery
 from pyrogram import filters as Filters
 
+from ci import me
 from plugins.enemies import enemies_msg
 from plugins.mys2 import mys2_msg, mys2_qun_msg
 from plugins.start import welcome_command, ping_command, help_command, leave_command, help_callback
@@ -118,7 +119,7 @@ async def process_group_msg(client: Client, message: Message):
     text = message.text
     msg_list = text.split(' ')
     # 帮助消息
-    if msg_list[0] == '/help':
+    if msg_list[0] == '/help' or msg_list[0] == f'/help@{me["result"]["username"]}':
         await help_command(client, message)
     # # 武器查询
     if text.startswith('武器查询') or text.startswith('武器资料'):
