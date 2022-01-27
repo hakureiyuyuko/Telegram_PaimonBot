@@ -106,10 +106,14 @@ async def get_character(name: str):
              f"<b>称号：</b>{data['title']}\n" \
              f"<b>CV：</b>{data['cv']['chinese']}\n" \
              f"<b>简介：</b>{data['description']}"
-    try:
+    if "card" in data["images"]:
         url = data["images"]["card"]
-    except KeyError:
+    elif "cover2" in data["images"]:
+        url = data["images"]["cover2"]
+    elif "icon" in data["images"]:
         url = data["images"]["icon"]
+    else:
+        url = None
     return result, url
 
 

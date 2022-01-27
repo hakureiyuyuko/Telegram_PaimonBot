@@ -1,8 +1,4 @@
-from configparser import RawConfigParser
-from os import getcwd, sep
-
 from ci import admin_id
-from defs.redis_load import redis, redis_status
 from pyrogram import Client
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
