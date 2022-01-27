@@ -12,4 +12,4 @@ pyyaml>=6.0
 httpx>=0.18.1
 apscheduler>=3.8.1
 wordcloud>=1.8.1
-numpy>=1.22.1
+numpy
