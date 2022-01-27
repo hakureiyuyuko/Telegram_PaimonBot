@@ -261,7 +261,7 @@ async def inline_process(client: Client, query: InlineQuery):
     if nums == 0:
         return await query.answer(
                 results=[],
-                switch_pm_text=f'{emoji.CROSS_MARK} 字符串 "{text}" 没有搜索到任何结果',
+                switch_pm_text=f'{emoji.CROSS_MARK} 字符串 "{" ".join(text)}" 没有搜索到任何结果',
                 switch_pm_parameter="start",
             )
     await query.answer(data)

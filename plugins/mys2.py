@@ -248,7 +248,7 @@ async def push():
             if i['gid'] == "on":
                 await app.send_message(int(i['qid']), i['message'])
             else:
-                await app.send_message(int(i['gid']), f"[NOTICE](tg://user?id={i['qid']})" + "\n" + i['message'])
+                await app.send_message(int(i['gid']), f"[NOTICE {i['qid']}](tg://user?id={i['qid']})" + "\n" + i['message'])
     else:
         pass
 
@@ -272,7 +272,7 @@ async def daily_sign():
                 traceback.print_exc()
         else:
             im = await sign(str(row[0]))
-            message = f"[CQ:at,qq={row[2]}]\n{im}"
+            message = f"[NOTICE {row[2]}](tg://user?id={row[2]})\n\n{im}"
             for i in temp_list:
                 if row[4] == i["push_group"]:
                     i["push_message"] = i["push_message"] + "\n" + message
