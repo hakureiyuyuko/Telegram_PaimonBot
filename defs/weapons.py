@@ -1,7 +1,8 @@
-import difflib, json, requests
+import difflib, json
 from os import getcwd, sep
 from xpinyin import Pinyin
 from json.decoder import JSONDecodeError
+from ci import client
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                          "Chrome/89.0.4389.82 Safari/537.36"}
@@ -11,8 +12,8 @@ with open(f"{working_dir}{sep}assets{sep}data{sep}weapon.json", 'r', encoding='u
 weapon_type = {1: "单手剑", 2: "双手剑", 3: "弓", 4: "法器", 5: "长枪"}
 
 
-def get_url(name: str):
-    res = requests.get(url=f'https://info.minigg.cn/weapons?query={name}', headers=headers)
+async def get_url(name: str):
+    res = await client.get(url=f'https://info.minigg.cn/weapons?query={name}', headers=headers)
     if "errcode" in res.text:
         raise JSONDecodeError("", "", 0)
     py_dict = res.json()
@@ -23,7 +24,7 @@ async def get_weapon(name: str):
     for i in weapon_all:
         if name in i['name']:
             try:
-                url = (get_url(i['name'][0]))["images"]["icon"]
+                url = (await get_url(i['name'][0]))["images"]["icon"]
             except (JSONDecodeError, KeyError):
                 url = None
             text = f"<b>{i['name'][0]}</b> {'★' * i['star']}\n" \
@@ -34,7 +35,7 @@ async def get_weapon(name: str):
                    f"<b>技能：</b>{i['skill']}"
             return text, url
     try:
-        data = get_url(str(name))
+        data = await get_url(str(name))
         text = f"<b>{data['name']}</b> {'★' * int(data['rarity'])}\n" \
                f"<b>类型：</b>{data['weapontype']}\n" \
                f"<b>1级基础攻击力：</b>{data['baseatk']}\n" \

@@ -1,7 +1,9 @@
-import difflib, json, re, requests
+import difflib, json, re
 from os import getcwd, sep
 from xpinyin import Pinyin
 from json.decoder import JSONDecodeError
+
+from ci import client
 
 working_dir = getcwd()
 
@@ -33,19 +35,19 @@ def nic2name(name):
 #     return result + (',""' * length) + after
 
 
-def get_json(name: str) -> dict:
+async def get_json(name: str) -> dict:
     if name not in ["空", "荧"]:
         name = nic2name(name)
-    res = requests.get(f'https://info.minigg.cn/characters?query={name}')
+    res = await client.get(f'https://info.minigg.cn/characters?query={name}')
     if "errcode" in res.text:
         raise JSONDecodeError("", "", 0)
     py_dict = res.json()
     return py_dict
 
 
-def get_json_mz(name: str) -> dict:
+async def get_json_mz(name: str) -> dict:
     name = nic2name(name)
-    res = requests.get(f'https://info.minigg.cn/constellations?query={name}')
+    res = await client.get(f'https://info.minigg.cn/constellations?query={name}')
     if "errcode" in res.text:
         raise JSONDecodeError("", "", 0)
     py_dict = res.json()
@@ -76,13 +78,13 @@ def char_to_char(char):
     return int(new_str)
 
 
-def get_character(name: str):
+async def get_character(name: str):
     # 角色常见昵称转换为官方角色名
     nick_name = name
     if name not in ["空", "荧"]:
         nick_name = nic2name(name)
     try:
-        data = get_json(nick_name)
+        data = await get_json(nick_name)
     except JSONDecodeError:
         correct_result = auto_correct(nick_name)
         if correct_result is None:
@@ -94,8 +96,7 @@ def get_character(name: str):
                 return f"派蒙这里没找到 <code>{name}</code> ，可能是派蒙的错，可能是你输入的名字不正确哦。", None
             else:
                 return f"派蒙这里没找到 <code>{name}</code> ，你是要搜索 <code>{correct_result[0]}</code> 吗", None
-    result = f"<b>{nick_name}</b>\n" \
-             f"<b>稀有度：</b>{data['rarity']}\n" \
+    result = f"<b>{nick_name} {'★' * int(data['rarity'])}</b>\n" \
              f"<b>命之座：</b>{data['constellation']}\n" \
              f"<b>所属：</b>{data['affiliation']}\n" \
              f"<b>突破加成：</b>{data['substat']}\n" \
@@ -106,7 +107,7 @@ def get_character(name: str):
              f"<b>CV：</b>{data['cv']['chinese']}\n" \
              f"<b>简介：</b>{data['description']}"
     try:
-        url = data["images"]["cover1"]
+        url = data["images"]["card"]
     except KeyError:
         url = data["images"]["icon"]
     return result, url
@@ -128,7 +129,7 @@ async def get_mz(name_mz: str) -> str:
         except IndexError:
             num = -1
     try:
-        data = get_json_mz(name)
+        data = await get_json_mz(name)
     except:
         return f"派蒙这没有 <code>{name}</code> ，可能是官方资料没有该资料，可能是你输入的名字不正确哦。"
     result = ''

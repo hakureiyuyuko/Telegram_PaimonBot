@@ -6,13 +6,13 @@ from json.decoder import JSONDecodeError
 from defs.redis_load import redis_status, redis
 
 
-def get_character(name: str):
+async def get_character(name: str):
     # 角色常见昵称转换为官方角色名
     nick_name = nic2name(name)
     try:
         if nick_name == '旅行者':
             return "派蒙这里不支持旅行者哦。", None
-        get_json(nick_name)
+        await get_json(nick_name)
         return nick_name, 'ok'
     except JSONDecodeError:
         correct_result = auto_correct(nick_name)

@@ -7,14 +7,14 @@ import traceback
 from pyrogram import Client
 from pyrogram.types import Message
 
-from defs.db import deal_ck, selectDB, OpenPush, CheckDB, connectDB
+from defs.db import deal_ck, selectDB, OpenPush, CheckDB, connectDB, deletecache
 from defs.event import generate_event
-from defs.mys2 import award, sign, daily
+from defs.mys2 import award, sign, daily, draw_pic, draw_wordcloud
 
-from ci import scheduler, app
+from ci import scheduler, app, admin_id
 from defs.redis_load import redis
 
-SUPERUSERS = []
+SUPERUSERS = [admin_id]
 
 
 async def mys2_msg(client: Client, message: Message):
@@ -143,6 +143,90 @@ async def mys2_qun_msg(client: Client, message: Message):
         mys = text.replace("绑定mys", "")  # str
         await connectDB(message.from_user.id, None, mys)
         await message.reply('绑定米游社id成功！')
+    elif "uid" in text:
+        try:
+            uid = re.findall(r"\d+", text)[0]  # str
+        except IndexError:
+            return await message.reply("uid格式错误！")
+        try:
+            try:
+                nickname = message.from_user.first_name
+                nickname = nickname if len(nickname) < 10 else (nickname[:10] + "...")
+                im = await draw_pic(uid, message, nickname=nickname, mode=2)
+                if im.find(".") != -1:
+                    await message.reply_photo(im)
+                else:
+                    await message.reply(im)
+            except Exception as e:
+                await message.reply("获取失败，有可能是数据状态有问题,\n{}\n请检查后台输出。".format(e))
+                traceback.print_exc()
+        except Exception as e:
+            traceback.print_exc()
+            await message.reply("发生错误 {},请检查后台输出。".format(e))
+    elif "查询" in text:
+        try:
+            at = message.reply_to_message
+            if at:
+                qid = at.from_user.id
+                nickname = at.from_user.first_name
+                uid = await selectDB(qid)
+            else:
+                nickname = message.from_user.first_name
+                uid = await selectDB(message.from_user.id)
+            nickname = nickname if len(nickname) < 10 else (nickname[:10] + "...")
+            if uid:
+                if "词云" in text:
+                    try:
+                        im = await draw_wordcloud(uid[0], message, uid[1])
+                        if im.find(".jpg") != -1:
+                            await message.reply_photo(im)
+                        else:
+                            await message.reply(im)
+                    except Exception as e:
+                        await message.reply("获取失败，有可能是数据状态有问题,\n{}\n请检查后台输出。".format(e))
+                        traceback.print_exc()
+                else:
+                    try:
+                        bg = await draw_pic(uid[0], message, nickname=nickname, mode=uid[1])
+                        if bg.find(".") != -1:
+                            await message.reply_photo(bg)
+                        else:
+                            await message.reply(bg)
+                    except Exception as e:
+                        await message.reply("获取失败，有可能是数据状态有问题,\n{}\n请检查后台输出。".format(e))
+                        traceback.print_exc()
+            else:
+                await message.reply('未找到绑定记录！')
+        except Exception as e:
+            traceback.print_exc()
+            await message.reply("发生错误 {},请检查后台输出。".format(e))
+    elif "mys" in text:
+        try:
+            try:
+                uid = re.findall(r"\d+", text)[0]  # str
+            except IndexError:
+                return await message.reply("米游社 id 格式错误！")
+            nickname = message.from_user.first_name
+            nickname = nickname if len(nickname) < 10 else (nickname[:10] + "...")
+            try:
+                im = await draw_pic(uid, message, nickname=nickname, mode=3)
+                if im.find(".") != -1:
+                    await message.reply_photo(im)
+                else:
+                    await message.reply(im)
+            except Exception as e:
+                await message.reply("获取失败，有可能是数据状态有问题,\n{}\n请检查后台输出。".format(e))
+                traceback.print_exc()
+        except Exception as e:
+            traceback.print_exc()
+            await message.reply("发生错误 {},请检查后台输出。".format(e))
+    elif "全部重签" in text and message.from_user.id in SUPERUSERS:
+        try:
+            await message.reply("已开始执行")
+            await daily_sign()
+        except Exception as e:
+            traceback.print_exc()
+            await message.reply("发生错误 {},请检查后台输出。".format(e))
 
 
 # 每隔一小时检测树脂是否超过设定值
@@ -208,3 +292,9 @@ async def daily_sign():
 @scheduler.scheduled_job('cron', hour='2')
 async def delete():
     await generate_event()
+
+
+# 每日零点清空cookies使用缓存
+@scheduler.scheduled_job('cron', hour='0')
+async def delete():
+    deletecache()

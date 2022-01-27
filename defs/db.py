@@ -6,9 +6,10 @@ import re
 import string
 import time
 import traceback
+from shutil import copyfile
 
 import requests
-from httpx import AsyncClient
+from ci import client
 
 mhyVersion = "2.11.1"
 
@@ -109,9 +110,21 @@ def DSGet(q="", b=None):
 
 async def GetMysInfo(mysid, ck):
     try:
-        async with AsyncClient() as client:
+        req = await client.get(
+            url="https://api-takumi.mihoyo.com/game_record/card/wapi/getGameRecordCard?uid=" + mysid,
+            headers={
+                'DS': DSGet("uid=" + mysid),
+                'x-rpc-app_version': mhyVersion,
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                'x-rpc-client_type': '5',
+                'Referer': 'https://webstatic.mihoyo.com/',
+                "Cookie": ck})
+        data = json.loads(req.text)
+        return data
+    except requests.exceptions.SSLError:
+        try:
             req = await client.get(
-                url="https://api-takumi.mihoyo.com/game_record/card/wapi/getGameRecordCard?uid=" + mysid,
+                url="https://api-takumi-record.mihoyo.com/game_record/card/wapi/getGameRecordCard?uid=" + mysid,
                 headers={
                     'DS': DSGet("uid=" + mysid),
                     'x-rpc-app_version': mhyVersion,
@@ -120,20 +133,6 @@ async def GetMysInfo(mysid, ck):
                     'Referer': 'https://webstatic.mihoyo.com/',
                     "Cookie": ck})
             data = json.loads(req.text)
-        return data
-    except requests.exceptions.SSLError:
-        try:
-            async with AsyncClient() as client:
-                req = await client.get(
-                    url="https://api-takumi-record.mihoyo.com/game_record/card/wapi/getGameRecordCard?uid=" + mysid,
-                    headers={
-                        'DS': DSGet("uid=" + mysid),
-                        'x-rpc-app_version': mhyVersion,
-                        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
-                        'x-rpc-client_type': '5',
-                        'Referer': 'https://webstatic.mihoyo.com/',
-                        "Cookie": ck})
-                data = json.loads(req.text)
             return data
         except json.decoder.JSONDecodeError:
             print("米游社信息读取新Api失败！")
@@ -196,19 +195,18 @@ async def GetAward(Uid, ServerID="cn_gf01"):
     if Uid[0] == '5':
         ServerID = "cn_qd01"
     try:
-        async with AsyncClient() as client:
-            req = await client.get(
-                url="https://hk4e-api.mihoyo.com/event/ys_ledger/monthInfo?month={}&bind_uid={}&bind_region={}&bbs_presentation_style=fullscreen&bbs_auth_required=true&utm_source=bbs&utm_medium=mys&utm_campaign=icon".format(
-                    "0", Uid, ServerID),
-                headers={
-                    'x-rpc-app_version': mhyVersion,
-                    "Cookie": await OwnerCookies(Uid),
-                    'DS': oldDSGet(),
-                    "x-rpc-device_id": random_hex(32),
-                    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
-                    'x-rpc-client_type': '5',
-                    'Referer': 'https://webstatic.mihoyo.com/'})
-            data = json.loads(req.text)
+        req = await client.get(
+            url="https://hk4e-api.mihoyo.com/event/ys_ledger/monthInfo?month={}&bind_uid={}&bind_region={}&bbs_presentation_style=fullscreen&bbs_auth_required=true&utm_source=bbs&utm_medium=mys&utm_campaign=icon".format(
+                "0", Uid, ServerID),
+            headers={
+                'x-rpc-app_version': mhyVersion,
+                "Cookie": await OwnerCookies(Uid),
+                'DS': oldDSGet(),
+                "x-rpc-device_id": random_hex(32),
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                'x-rpc-client_type': '5',
+                'Referer': 'https://webstatic.mihoyo.com/'})
+        data = json.loads(req.text)
         return data
     except:
         traceback.print_exc()
@@ -245,16 +243,15 @@ async def GetSignInfo(Uid, ServerID="cn_gf01"):
     if Uid[0] == '5':
         ServerID = "cn_qd01"
     try:
-        async with AsyncClient() as client:
-            req = await client.get(
-                url="https://api-takumi.mihoyo.com/event/bbs_sign_reward/info?act_id=e202009291139501&region=" + ServerID + "&uid=" + Uid,
-                headers={
-                    'x-rpc-app_version': mhyVersion,
-                    "Cookie": await OwnerCookies(Uid),
-                    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
-                    'x-rpc-client_type': '5',
-                    'Referer': 'https://webstatic.mihoyo.com/'})
-            data = json.loads(req.text)
+        req = await client.get(
+            url="https://api-takumi.mihoyo.com/event/bbs_sign_reward/info?act_id=e202009291139501&region=" + ServerID + "&uid=" + Uid,
+            headers={
+                'x-rpc-app_version': mhyVersion,
+                "Cookie": await OwnerCookies(Uid),
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                'x-rpc-client_type': '5',
+                'Referer': 'https://webstatic.mihoyo.com/'})
+        data = json.loads(req.text)
         return data
     except:
         print("获取签到信息失败，请重试")
@@ -262,15 +259,14 @@ async def GetSignInfo(Uid, ServerID="cn_gf01"):
 
 async def GetSignList():
     try:
-        async with AsyncClient() as client:
-            req = await client.get(
-                url="https://api-takumi.mihoyo.com/event/bbs_sign_reward/home?act_id=e202009291139501",
-                headers={
-                    'x-rpc-app_version': mhyVersion,
-                    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
-                    'x-rpc-client_type': '5',
-                    'Referer': 'https://webstatic.mihoyo.com/'})
-            data = json.loads(req.text)
+        req = await client.get(
+            url="https://api-takumi.mihoyo.com/event/bbs_sign_reward/home?act_id=e202009291139501",
+            headers={
+                'x-rpc-app_version': mhyVersion,
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                'x-rpc-client_type': '5',
+                'Referer': 'https://webstatic.mihoyo.com/'})
+        data = json.loads(req.text)
         return data
     except:
         print("获取签到奖励列表失败，请重试")
@@ -310,9 +306,21 @@ async def GetDaily(Uid, ServerID="cn_gf01"):
     if Uid[0] == '5':
         ServerID = "cn_qd01"
     try:
-        async with AsyncClient() as client:
+        req = await client.get(
+            url="https://api-takumi.mihoyo.com/game_record/app/genshin/api/dailyNote?server=" + ServerID + "&role_id=" + Uid,
+            headers={
+                'DS': DSGet("role_id=" + Uid + "&server=" + ServerID),
+                'x-rpc-app_version': mhyVersion,
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                'x-rpc-client_type': '5',
+                'Referer': 'https://webstatic.mihoyo.com/',
+                "Cookie": await OwnerCookies(Uid)})
+        data = json.loads(req.text)
+        return data
+    except requests.exceptions.SSLError:
+        try:
             req = await client.get(
-                url="https://api-takumi.mihoyo.com/game_record/app/genshin/api/dailyNote?server=" + ServerID + "&role_id=" + Uid,
+                url="https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?server=" + ServerID + "&role_id=" + Uid,
                 headers={
                     'DS': DSGet("role_id=" + Uid + "&server=" + ServerID),
                     'x-rpc-app_version': mhyVersion,
@@ -320,20 +328,6 @@ async def GetDaily(Uid, ServerID="cn_gf01"):
                     'x-rpc-client_type': '5',
                     'Referer': 'https://webstatic.mihoyo.com/',
                     "Cookie": await OwnerCookies(Uid)})
-            data = json.loads(req.text)
-        return data
-    except requests.exceptions.SSLError:
-        try:
-            async with AsyncClient() as client:
-                req = await client.get(
-                    url="https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?server=" + ServerID + "&role_id=" + Uid,
-                    headers={
-                        'DS': DSGet("role_id=" + Uid + "&server=" + ServerID),
-                        'x-rpc-app_version': mhyVersion,
-                        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
-                        'x-rpc-client_type': '5',
-                        'Referer': 'https://webstatic.mihoyo.com/',
-                        "Cookie": await OwnerCookies(Uid)})
             data = json.loads(req.text)
             return data
         except json.decoder.JSONDecodeError:
@@ -361,3 +355,239 @@ async def connectDB(userid, uid=None, mys=None):
 
     conn.commit()
     conn.close()
+
+
+def deletecache():
+    try:
+        conn = sqlite3.connect('ID_DATA.db')
+        c = conn.cursor()
+        c.execute("DROP TABLE CookiesCache")
+        c.execute("UPDATE NewCookiesTable SET Extra = ? WHERE Extra=?", (None, "limit30"))
+        copyfile("ID_DATA.db", "ID_DATA_bak.db")
+        c.execute('''CREATE TABLE IF NOT EXISTS CookiesCache
+        (UID TEXT PRIMARY KEY,
+        MYSID         TEXT,
+        Cookies       TEXT);''')
+        conn.commit()
+        conn.close()
+    except:
+        print("\nerror\n")
+
+    try:
+        conn = sqlite3.connect('ID_DATA.db')
+        c = conn.cursor()
+        c.execute("UPDATE UseridDict SET lots=NULL")
+        conn.commit()
+        conn.close()
+    except:
+        print("\nerror\n")
+
+
+def functionRegex(value, patter):
+    c_pattern = re.compile(r"account_id={}".format(patter))
+    return c_pattern.search(value) is not None
+
+
+def cacheDB(uid, mode=1, mys=None):
+    use = ''
+    conn = sqlite3.connect('ID_DATA.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS CookiesCache
+        (UID TEXT PRIMARY KEY,
+        MYSID         TEXT,
+        Cookies       TEXT);''')
+    if mode == 2:
+        cursor = c.execute("SELECT *  FROM CookiesCache WHERE MYSID = ?", (uid,))
+        c_data = cursor.fetchall()
+    else:
+        if mys:
+            cursor = c.execute("SELECT *  FROM CookiesCache WHERE MYSID = ?", (mys,))
+            c_data = cursor.fetchall()
+        else:
+            cursor = c.execute("SELECT *  FROM CookiesCache WHERE UID = ?", (uid,))
+            c_data = cursor.fetchall()
+
+    if len(c_data) == 0:
+        if mode == 2:
+            conn.create_function("REGEXP", 2, functionRegex)
+            cursor = c.execute("SELECT *  FROM NewCookiesTable WHERE REGEXP(Cookies, ?)", (uid,))
+            d_data = cursor.fetchall()
+        else:
+            cursor = c.execute("SELECT *  FROM NewCookiesTable WHERE UID = ?", (uid,))
+            d_data = cursor.fetchall()
+
+        if len(d_data) != 0:
+            if d_data[0][7] != "error":
+                use = d_data[0][1]
+                if mode == 1:
+                    c.execute("INSERT OR IGNORE INTO CookiesCache (Cookies,UID) \
+                            VALUES (?, ?)", (use, uid))
+                elif mode == 2:
+                    c.execute("INSERT OR IGNORE INTO CookiesCache (Cookies,MYSID) \
+                            VALUES (?, ?)", (use, uid))
+            else:
+                cookiesrow = c.execute("SELECT * FROM NewCookiesTable WHERE Extra IS NULL ORDER BY RANDOM() LIMIT 1")
+                e_data = cookiesrow.fetchall()
+                if len(e_data) != 0:
+                    if mode == 1:
+                        c.execute("INSERT OR IGNORE INTO CookiesCache (Cookies,UID) \
+                                VALUES (?, ?)", (e_data[0][1], uid))
+                    elif mode == 2:
+                        c.execute("INSERT OR IGNORE INTO CookiesCache (Cookies,MYSID) \
+                                VALUES (?, ?)", (e_data[0][1], uid))
+                    use = e_data[0][1]
+                else:
+                    return "没有可以使用的Cookies！"
+        else:
+            cookiesrow = c.execute("SELECT * FROM NewCookiesTable WHERE Extra IS NULL ORDER BY RANDOM() LIMIT 1")
+            e_data = cookiesrow.fetchall()
+            if len(e_data) != 0:
+                if mode == 1:
+                    c.execute("INSERT OR IGNORE INTO CookiesCache (Cookies,UID) \
+                            VALUES (?, ?)", (e_data[0][1], uid))
+                elif mode == 2:
+                    c.execute("INSERT OR IGNORE INTO CookiesCache (Cookies,MYSID) \
+                            VALUES (?, ?)", (e_data[0][1], uid))
+                use = e_data[0][1]
+            else:
+                return "没有可以使用的Cookies！"
+    else:
+        use = c_data[0][2]
+        if mys:
+            try:
+                c.execute("UPDATE CookiesCache SET UID = ? WHERE MYSID=?", (uid, mys))
+            except:
+                c.execute("UPDATE CookiesCache SET MYSID = ? WHERE UID=?", (mys, uid))
+
+    conn.commit()
+    conn.close()
+    return use
+
+
+async def GetSpiralAbyssInfo(Uid, ck, Schedule_type="1", ServerID="cn_gf01"):
+    if Uid[0] == '5':
+        ServerID = "cn_qd01"
+    try:
+        req = await client.get(
+            url="https://api-takumi.mihoyo.com/game_record/app/genshin/api/spiralAbyss?schedule_type=" + Schedule_type + "&server=" + ServerID + "&role_id=" + Uid,
+            headers={
+                'DS': DSGet("role_id=" + Uid + "&schedule_type=" + Schedule_type + "&server=" + ServerID),
+                'Origin': 'https://webstatic.mihoyo.com',
+                'Cookie': ck,
+                'x-rpc-app_version': mhyVersion,
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                'x-rpc-client_type': '5',
+                'Referer': 'https://webstatic.mihoyo.com/'
+            }
+        )
+        data = json.loads(req.text)
+        return data
+    except requests.exceptions.SSLError:
+        try:
+            req = await client.get(
+                url="https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/spiralAbyss?schedule_type=" + Schedule_type + "&server=" + ServerID + "&role_id=" + Uid,
+                headers={
+                    'DS': DSGet("role_id=" + Uid + "&schedule_type=" + Schedule_type + "&server=" + ServerID),
+                    'Origin': 'https://webstatic.mihoyo.com',
+                    'Cookie': ck,
+                    'x-rpc-app_version': mhyVersion,
+                    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                    'x-rpc-client_type': '5',
+                    'Referer': 'https://webstatic.mihoyo.com/'
+                }
+            )
+            data = json.loads(req.text)
+            return data
+        except json.decoder.JSONDecodeError:
+            print("深渊信息读取新Api失败！")
+    except Exception as e:
+        print("深渊信息读取老Api失败！")
+        print(e.with_traceback)
+
+
+def errorDB(ck, err):
+    conn = sqlite3.connect('ID_DATA.db')
+    c = conn.cursor()
+    if err == "error":
+        c.execute("UPDATE NewCookiesTable SET Extra = ? WHERE Cookies=?", ("error", ck))
+    elif err == "limit30":
+        c.execute("UPDATE NewCookiesTable SET Extra = ? WHERE Cookies=?", ("limit30", ck))
+
+
+def GetCharacter(Uid, Character_ids, ck, ServerID="cn_gf01"):
+    if Uid[0] == '5':
+        ServerID = "cn_qd01"
+    try:
+        req = requests.post(
+            url="https://api-takumi.mihoyo.com/game_record/app/genshin/api/character",
+            headers={
+                'DS': DSGet('', {"character_ids": Character_ids, "role_id": Uid, "server": ServerID}),
+                'Origin': 'https://webstatic.mihoyo.com',
+                'Cookie': ck,
+                'x-rpc-app_version': mhyVersion,
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                'x-rpc-client_type': '5',
+                'Referer': 'https://webstatic.mihoyo.com/'
+            },
+            json={"character_ids": Character_ids, "role_id": Uid, "server": ServerID}
+        )
+        data2 = json.loads(req.text)
+        return data2
+    except requests.exceptions.SSLError:
+        try:
+            req = requests.post(
+                url="https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/character",
+                headers={
+                    'DS': DSGet('', {"character_ids": Character_ids, "role_id": Uid, "server": ServerID}),
+                    'Origin': 'https://webstatic.mihoyo.com',
+                    'Cookie': ck,
+                    'x-rpc-app_version': mhyVersion,
+                    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                    'x-rpc-client_type': '5',
+                    'Referer': 'https://webstatic.mihoyo.com/'
+                },
+                json={"character_ids": Character_ids, "role_id": Uid, "server": ServerID}
+            )
+            data = json.loads(req.text)
+            return data
+        except json.decoder.JSONDecodeError:
+            print("深渊信息读取新Api失败！")
+    except Exception as e:
+        print("深渊信息读取老Api失败！")
+        print(e.with_traceback)
+
+
+async def GetInfo(Uid, ck, ServerID="cn_gf01"):
+    if Uid[0] == '5':
+        ServerID = "cn_qd01"
+    try:
+        req = await client.get(
+                url="https://api-takumi.mihoyo.com/game_record/app/genshin/api/index?role_id=" + Uid + "&server=" + ServerID,
+                headers={
+                    'DS': DSGet("role_id=" + Uid + "&server=" + ServerID),
+                    'x-rpc-app_version': mhyVersion,
+                    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                    'x-rpc-client_type': '5',
+                    'Referer': 'https://webstatic.mihoyo.com/',
+                    "Cookie": ck})
+        data = json.loads(req.text)
+        # print(data)
+        return data
+    except requests.exceptions.SSLError:
+        try:
+            req = await client.get(
+                    url="https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/index?role_id=" + Uid + "&server=" + ServerID,
+                    headers={
+                        'DS': DSGet("role_id=" + Uid + "&server=" + ServerID),
+                        'x-rpc-app_version': mhyVersion,
+                        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1',
+                        'x-rpc-client_type': '5',
+                        'Referer': 'https://webstatic.mihoyo.com/',
+                        "Cookie": ck})
+            data = json.loads(req.text)
+            return data
+        except json.decoder.JSONDecodeError:
+            print("米游社基础信息读取新Api失败！")
+    except Exception as e:
+        print("米游社基础信息读取老Api失败！")
+        print(e.with_traceback)

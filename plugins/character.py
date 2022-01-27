@@ -5,7 +5,7 @@ from defs.character import get_character, get_mz
 
 async def character_msg(client: Client, message: Message):
     name = message.text.replace('角色资料', '').replace('角色简介', '').replace('角色查询', '').strip()
-    text, url = get_character(name)
+    text, url = await get_character(name)
     if url:
         await message.reply_photo(photo=url, caption=text, quote=True)
     else:

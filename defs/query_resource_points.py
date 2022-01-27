@@ -1,12 +1,10 @@
 from os.path import exists
-
+from ci import client
 from PIL import Image, ImageMath
 from io import BytesIO
 import json
 import os
 import time
-import httpx
-import asyncio
 
 LABEL_URL = 'https://api-static.mihoyo.com/common/blackboard/ys_obc/v1/map/label/tree?app_sn=ys_obc'
 POINT_LIST_URL = 'https://api-static.mihoyo.com/common/blackboard/ys_obc/v1/map/point/list?map_id=2&app_sn=ys_obc'
@@ -66,12 +64,11 @@ data = {
 
 async def download_icon(url):
     # 下载图片，返回Image对象
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(url=url)
-        if resp.status_code != 200:
-            raise ValueError(f"获取图片数据失败，错误代码 {resp.status_code}")
-        icon = resp.content
-        return Image.open(BytesIO(icon))
+    resp = await client.get(url=url)
+    if resp.status_code != 200:
+        raise ValueError(f"获取图片数据失败，错误代码 {resp.status_code}")
+    icon = resp.content
+    return Image.open(BytesIO(icon))
 
 
 async def download_json(url):
@@ -80,11 +77,10 @@ async def download_json(url):
         if exists(f"assets{os.sep}data{os.sep}list.json"):
             with open(f"assets{os.sep}data{os.sep}list.json", "rb") as f:
                 return json.loads(f.read())
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(url=url)
-        if resp.status_code != 200:
-            raise ValueError(f"获取资源点数据失败，错误代码 {resp.status_code}")
-        return resp.json()
+    resp = await client.get(url=url)
+    if resp.status_code != 200:
+        raise ValueError(f"获取资源点数据失败，错误代码 {resp.status_code}")
+    return resp.json()
 
 
 async def up_icon_image(sublist):
@@ -187,7 +183,7 @@ class Resource_map(object):
         self.resource_id = str(data["can_query_type_list"][resource_name])
 
         # self.map_image = Image.open(MAP_PATH)
-        self.map_image = MAP_ICON.copy()
+        self.map_image = MAP_ICON.copy()  # noqa
         self.map_size = self.map_image.size
 
         # 地图要要裁切的左上角和右下角坐标
@@ -216,8 +212,8 @@ class Resource_map(object):
         for resource_point in data["all_resource_point_list"]:
             if str(resource_point["label_id"]) == self.resource_id:
                 # 获取xy坐标，然后加上中心点的坐标完成坐标转换
-                x = resource_point["x_pos"] + CENTER[0]
-                y = resource_point["y_pos"] + CENTER[1]
+                x = resource_point["x_pos"] + CENTER[0]  # noqa
+                y = resource_point["y_pos"] + CENTER[1]  # noqa
                 temp_list.append((int(x), int(y)))
         return temp_list
 

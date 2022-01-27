@@ -3,17 +3,19 @@ from os import sep
 from os.path import exists
 
 from pyrogram import Client, emoji
-from pyrogram.types import Message, InlineQuery
+from pyrogram.types import Message, InlineQuery, CallbackQuery
 from pyrogram import filters as Filters
 
+from plugins.enemies import enemies_msg
 from plugins.mys2 import mys2_msg, mys2_qun_msg
-from plugins.start import welcome_command, ping_command, help_command, leave_command
+from plugins.start import welcome_command, ping_command, help_command, leave_command, help_callback
 from plugins.almanac import almanac_msg
 from plugins.challenge import tf_msg, wq_msg, zb_msg
 from plugins.character import character_msg, mz_msg
 from plugins.event import event_msg
 from plugins.weapons import weapon_msg
 from plugins.fortunate import fortunate_msg, set_fortunate_img
+from plugins.foods import foods_msg
 from plugins.artifacts import artifacts_msg
 from plugins.artifact_rate import artifact_rate_msg
 from plugins.query_resource_points import inquire_resource_points, inquire_resource_list
@@ -68,6 +70,14 @@ async def process_private_msg(client: Client, message: Message):
     if '角色资料' in message.text or '角色简介' in message.text or '角色查询' in message.text:
         await character_msg(client, message)
         await log(client, message, '查询角色资料')
+    # # 原魔查询
+    if '原魔查询' in message.text:
+        await enemies_msg(client, message)
+        await log(client, message, '查询原魔资料')
+    # # 食物查询
+    if '食物查询' in message.text:
+        await foods_msg(client, message)
+        await log(client, message, '查询食物资料')
     # # 命座查询
     if '命座' in message.text:
         await mz_msg(client, message)
@@ -138,6 +148,14 @@ async def process_group_msg(client: Client, message: Message):
     if text.startswith('角色资料') or text.startswith('角色简介') or text.startswith('角色查询'):
         await character_msg(client, message)
         await log(client, message, '查询角色资料')
+    # # 原魔查询
+    if text.startswith('原魔查询'):
+        await enemies_msg(client, message)
+        await log(client, message, '查询原魔资料')
+    # # 食物查询
+    if text.startswith('食物查询'):
+        await foods_msg(client, message)
+        await log(client, message, '查询食物资料')
     # # 命座查询
     if text.startswith('命座'):
         await mz_msg(client, message)
@@ -161,10 +179,10 @@ async def process_group_msg(client: Client, message: Message):
     if text.startswith('哪里有') or text.endswith('哪里有'):
         await inquire_resource_points(client, message)
         await log(client, message, '查询地图资源')
-    # 资源列表
-    if text.startswith('资源列表'):
-        await inquire_resource_list(client, message)
-        await log(client, message, '查询资源列表')
+    # 资源列表（消息太长 过滤）
+    # if text.startswith('资源列表'):
+    #     await inquire_resource_list(client, message)
+    #     await log(client, message, '查询资源列表')
     # 米游社功能
     if text.startswith('米游社'):
         await mys2_qun_msg(client, message)
@@ -173,10 +191,25 @@ async def process_group_msg(client: Client, message: Message):
 @Client.on_message(Filters.photo)
 async def process_photo(client: Client, message: Message):
     text = message.caption if message.caption else ""
+    message.text = text
 
     if text.startswith('圣遗物评分'):
         await artifact_rate_msg(client, message)
         await log(client, message, '圣遗物评分')
+    if text.startswith('米游社'):
+        if message.chat.type == "supergroup":
+            await mys2_qun_msg(client, message)
+
+
+@Client.on_message(Filters.document & Filters.group & ~Filters.edited)
+async def process_document(client: Client, message: Message):
+    text = message.caption if message.caption else ""
+    message.text = text
+
+    if text.startswith('米游社'):
+        print(message.document.mime_type)
+        if message.document.mime_type in ["image/jpeg"]:
+            await mys2_qun_msg(client, message)
 
 
 @Client.on_message(Filters.audio & Filters.private & ~Filters.edited)
@@ -190,6 +223,11 @@ async def send_self_intro(client: Client, message: Message):
     if message.new_chat_members[0].is_self:
         await message.reply('感谢邀请小派蒙到本群！\n请使用 /help 查看咱已经学会的功能。', quote=True)
         await log(client, message, '邀请入群')
+
+
+@Client.on_callback_query(Filters.regex("help_"))
+async def callback_process(client: Client, query: CallbackQuery):
+    await help_callback(client, query)
 
 
 @Client.on_inline_query()

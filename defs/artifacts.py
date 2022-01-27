@@ -1,13 +1,17 @@
 from io import BytesIO
 from os import sep
-import requests
+
+import httpx
+
 from json.decoder import JSONDecodeError
 from PIL import Image
+
+from ci import client
 from defs.weapons import headers
 
 
-def get_url(name: str):
-    res = requests.get(url=f'https://info.minigg.cn/artifacts?query={name}', headers=headers)
+async def get_url(name: str):
+    res = await client.get(url=f'https://info.minigg.cn/artifacts?query={name}', headers=headers)
     if "errcode" in res.text:
         raise JSONDecodeError("", "", 0)
     py_dict = res.json()
@@ -17,7 +21,7 @@ def get_url(name: str):
 def gen_artifacts(data: dict):
     base_img = Image.new(mode="RGBA", size=(1280, 256), color=(255, 255, 255))
     for index, value in enumerate(data):
-        img = Image.open(BytesIO(requests.get(data[value]).content))
+        img = Image.open(BytesIO(httpx.get(data[value]).content))
         base_img.paste(img, (256 * index, 0))
 
     jpg_img = Image.new('RGB', size=(1280, 256), color=(255, 255, 255))
@@ -26,8 +30,7 @@ def gen_artifacts(data: dict):
 
 
 async def get_artifacts(name: str):
-    artifacts_im = '''<b>{}</b>
-【稀有度】：{}
+    artifacts_im = '''<b>{} {}</b>
 【2件套】：{}
 【4件套】：{}
 【{}】：{}
@@ -37,7 +40,7 @@ async def get_artifacts(name: str):
 【{}】：{}
 '''
     try:
-        data = get_url(name)
+        data = await get_url(name)
     except JSONDecodeError:
         return f"没有找到该武器,派蒙也米有办法！是不是名字错了？", None
     try:

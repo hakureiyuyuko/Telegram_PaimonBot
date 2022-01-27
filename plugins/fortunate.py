@@ -17,7 +17,7 @@ async def fortunate_msg(client: Client, message: Message):
         else:
             name = 'random'
     else:
-        name, temp = get_character(name)
+        name, temp = await get_character(name)
         if not temp:
             await message.reply(name, quote=True)
             return

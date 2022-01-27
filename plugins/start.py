@@ -1,8 +1,50 @@
 from configparser import RawConfigParser
 from os import getcwd, sep
+
+from ci import admin_id
 from defs.redis_load import redis, redis_status
 from pyrogram import Client
-from pyrogram.types import Message
+from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+
+HELP_MSG_PRE = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.3.0beta By Xtao-Labs\n\n' \
+               '🔅 以下是小派蒙我学会了的功能（部分）：\n'
+HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
+② [天赋/今日天赋] 查看今日天赋材料和角色
+③ [周本] 查看周本材料和人物
+④ [运势 (名字)] 查看今日运势
+   💠 <code>运势 (重云)</code>
+   💠 <code>设置运势 (重云)</code>
+⑤ [角色查询 名字] 查看人物简介
+   💠 <code>角色查询 重云</code>
+⑥ [命座 名字] 查看人物命座
+   💠 <code>命座 重云一命</code>
+⑦ [武器查询 武器名] 查看武器资料
+   💠 <code>武器查询 沐浴龙血的剑</code>
+⑧ [原魔查询] 查看原魔资料
+   💠 <code>原魔查询 丘丘人</code>
+⑨ [食物查询] 查看食物资料
+   💠 <code>食物查询 甜甜花/甜甜花酿鸡</code>
+⑩ [武器查询 武器名] 查看武器资料
+   💠 <code>武器查询 沐浴龙血的剑</code>
+======
+(11) [原神黄历] 查看随机生成的原神黄历
+(12) [活动列表] 查看今日活动列表和祈愿列表
+(13) [圣遗物评分] 我也想拥有这种分数的圣遗物(切实)
+(14) [哪里有 (资源名)] 查看资源的位置
+(15) [资源列表] 查看原神所有资源（私聊）
+(16) [米游社] 米游社相关功能
+   💠 <code>米游社添加（私聊）</code>
+   💠 <code>米游社推送开启/关闭</code>
+   💠 <code>米游社自动签到开启/关闭</code>
+   💠 <code>米游社每月统计（群聊）</code>
+   💠 <code>米游社签到（群聊）</code>
+   💠 <code>米游社当前状态（群聊）</code>
+   💠 <code>米游社绑定uid+游戏uid（群聊）</code>
+   💠 <code>米游社绑定mys+米游社id（群聊）</code>
+   💠 <code>米游社uid+游戏uid（支持自定义图片）（群聊）</code>
+   💠 <code>米游社mys+米游社id（支持自定义图片）（群聊）</code>
+   💠 <code>米游社查询（支持回复、自定义图片）（群聊）</code>
+   💠 <code>米游社查询uid（支持自定义图片）（群聊）</code>"""
 
 
 async def welcome_command(client: Client, message: Message):
@@ -19,17 +61,7 @@ async def leave_command(client: Client, message: Message):
     # 退出群组
     chat_id = message.text.split()[-1]
     # 权限检查
-    uid = str(message.from_user.id)
-    config = RawConfigParser()
-    config.read(f"{getcwd()}{sep}config.ini")
-    admin_str: str = "777000"
-    admin_str = config.get("basic", "admin", fallback=admin_str)
-    admins = admin_str.split('|')
-    if redis_status():
-        admin = redis.get('mys')
-        if admin:
-            admins.extend(admin.split('|'))
-    if uid not in admins:
+    if message.from_user.id == admin_id:
         return
     try:
         await client.leave_chat(chat_id)
@@ -39,32 +71,22 @@ async def leave_command(client: Client, message: Message):
 
 
 async def help_command(client: Client, message: Message):
-    text = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.2.5beta By Xtao-Labs\n\n' \
-           '🔅 以下是小派蒙我学会了的功能（部分）：\n' \
-           '① [武器/今日武器] 查看今日武器材料和武器\n' \
-           '② [天赋/今日天赋] 查看今日天赋材料和角色\n' \
-           '③ [周本] 查看周本材料和人物\n' \
-           '④ [运势 (名字)] 查看今日运势\n' \
-           '   💠 <code>运势 (重云)</code>\n' \
-           '   💠 <code>设置运势 (重云)</code>\n' \
-           '⑤ [角色查询 名字] 查看人物简介\n' \
-           '   💠 <code>角色查询 重云</code>\n' \
-           '⑥ [命座 名字] 查看人物命座\n' \
-           '   💠 <code>命座 重云一命</code>\n' \
-           '⑦ [武器查询 武器名] 查看武器资料\n' \
-           '   💠 <code>武器查询 沐浴龙血的剑</code>\n' \
-           '⑧ [原神黄历] 查看随机生成的原神黄历\n' \
-           '⑨ [活动列表] 查看今日活动列表和祈愿列表\n' \
-           '⑩ [圣遗物评分] 我也想拥有这种分数的圣遗物(切实)\n' \
-           '(11) [哪里有 (资源名)] 查看资源的位置\n' \
-           '(12) [资源列表] 查看原神所有资源\n' \
-           '(13) [米游社] 米游社相关功能\n' \
-           '   💠 <code>米游社添加（私聊）</code>\n' \
-           '   💠 <code>米游社推送开启/关闭</code>\n' \
-           '   💠 <code>米游社自动签到开启/关闭</code>\n' \
-           '   💠 <code>米游社每月统计（群聊）</code>\n' \
-           '   💠 <code>米游社签到（群聊）</code>\n' \
-           '   💠 <code>米游社当前状态（群聊）</code>\n' \
-           '   💠 <code>米游社绑定uid（群聊）</code>\n' \
-           '   💠 <code>米游社绑定mys（群聊）</code>'
-    await message.reply(text, quote=True, disable_web_page_preview=True)
+    text = HELP_MSG_PRE + HELP_MSG.split("\n======\n")[0]
+    await message.reply(text, quote=True, disable_web_page_preview=True, reply_markup=InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("下一页", callback_data="help_1")],
+        ]))
+
+
+async def help_callback(client: Client, query: CallbackQuery):
+    data = query.data.replace("help_", "")
+    try:
+        data = int(data)
+    except ValueError:
+        data = 1
+    text = HELP_MSG_PRE + HELP_MSG.split("\n======\n")[data]
+    await query.message.edit(text, disable_web_page_preview=True, reply_markup=InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("上一页" if data else "下一页",
+                                  callback_data="help_0" if data else "help_1")],
+        ]))
