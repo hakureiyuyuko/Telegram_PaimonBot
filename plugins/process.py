@@ -212,9 +212,9 @@ async def process_document(client: Client, message: Message):
             await mys2_qun_msg(client, message)
 
 
-@Client.on_message(Filters.audio & Filters.private & ~Filters.edited)
+@Client.on_message(Filters.voice & Filters.private & ~Filters.edited)
 async def process_audio(client: Client, message: Message):
-    await message.reply(f"File_id：<code>{message.audio.file_id}</code>")
+    await message.reply(f"{message.voice.file_id}", parse_mode='html')
 
 
 @Client.on_message(Filters.new_chat_members)
@@ -230,23 +230,32 @@ async def callback_process(client: Client, query: CallbackQuery):
     await help_callback(client, query)
 
 
+voice_data = None
+if exists(f"assets{sep}voice{sep}voice.json"):
+    with open(f"assets{sep}voice{sep}voice.json", "r", encoding='utf-8') as f:
+        voice_data = json.load(f)
+
+
 @Client.on_inline_query()
 async def inline_process(client: Client, query: InlineQuery):
     data = []
-    text = query.query
+    text = query.query.split()
     nums = 0
-    if not exists(f"assets{sep}voice{sep}voice.json"):
+    if not voice_data:
         return
-    with open(f"assets{sep}voice{sep}voice.json", "r", encoding='utf-8') as f:
-        data_ = json.load(f)
+    data_ = voice_data
     for index, value in enumerate(data_):
-        if text != "":
-            if text in value:
-                data.append(InlineQueryResultCachedDocument(value, file_id=data_[value]))
-                nums += 1
-        else:
-            data.append(InlineQueryResultCachedDocument(value, file_id=data_[value]))
+        if len(text) == 0:
+            data.append(InlineQueryResultCachedDocument(value, file_id=data_[value], caption=value))
             nums += 1
+        else:
+            skip = False
+            for i in text:
+                if i not in value:
+                    skip = True
+            if not skip:
+                data.append(InlineQueryResultCachedDocument(value, file_id=data_[value], caption=value))
+                nums += 1
         if nums >= 25:
             break
     if nums == 0:
