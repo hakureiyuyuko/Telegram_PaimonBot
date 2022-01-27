@@ -1,17 +1,16 @@
 from io import BytesIO
 from os import sep
-import requests, yaml, re
+import requests
 from json.decoder import JSONDecodeError
 from PIL import Image
-from defs.character import repl
 from defs.weapons import headers
 
 
 def get_url(name: str):
-    res = requests.get(url=f'https://api.minigg.cn/artifacts?query={name}', headers=headers)
-    if res.text == "undefined\n":
+    res = requests.get(url=f'https://info.minigg.cn/artifacts?query={name}', headers=headers)
+    if "errcode" in res.text:
         raise JSONDecodeError("", "", 0)
-    py_dict = yaml.safe_load(re.sub(r'\[? *(, *)+\]?', repl, res.text))
+    py_dict = res.json()
     return py_dict
 
 

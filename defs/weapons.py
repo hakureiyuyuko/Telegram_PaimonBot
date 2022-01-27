@@ -1,8 +1,7 @@
-import difflib, json, requests, yaml, re
+import difflib, json, requests
 from os import getcwd, sep
 from xpinyin import Pinyin
 from json.decoder import JSONDecodeError
-from defs.character import repl
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                          "Chrome/89.0.4389.82 Safari/537.36"}
@@ -13,10 +12,10 @@ weapon_type = {1: "单手剑", 2: "双手剑", 3: "弓", 4: "法器", 5: "长枪
 
 
 def get_url(name: str):
-    res = requests.get(url=f'https://api.minigg.cn/weapons?query={name}', headers=headers)
-    if res.text == "undefined\n":
+    res = requests.get(url=f'https://info.minigg.cn/weapons?query={name}', headers=headers)
+    if "errcode" in res.text:
         raise JSONDecodeError("", "", 0)
-    py_dict = yaml.safe_load(re.sub(r'\[? *(, *)+\]?', repl, res.text))
+    py_dict = res.json()
     return py_dict
 
 
@@ -24,7 +23,7 @@ async def get_weapon(name: str):
     for i in weapon_all:
         if name in i['name']:
             try:
-                url = (get_url(i['name'][0]))["images"]["image"]
+                url = (get_url(i['name'][0]))["images"]["icon"]
             except (JSONDecodeError, KeyError):
                 url = None
             text = f"<b>{i['name'][0]}</b> {'★' * i['star']}\n" \

@@ -1,4 +1,4 @@
-import difflib, json, re, requests, yaml
+import difflib, json, re, requests
 from os import getcwd, sep
 from xpinyin import Pinyin
 from json.decoder import JSONDecodeError
@@ -17,38 +17,38 @@ def nic2name(name):
     return name
 
 
-def repl(match):
-    content = re.sub(" ", "",match.group(0))
-    length = len(content) - 1
-    result = ''
-    if content[0] == '[':
-        result = '[""'
-        length -= 1
-
-    after = ','
-    if content[-1] == ']':
-        length -= 1
-        after += '""]'
-
-    return result + (',""' * length) + after
+# def repl(match):
+#     content = re.sub(" ", "",match.group(0))
+#     length = len(content) - 1
+#     result = ''
+#     if content[0] == '[':
+#         result = '[""'
+#         length -= 1
+#
+#     after = ','
+#     if content[-1] == ']':
+#         length -= 1
+#         after += '""]'
+#
+#     return result + (',""' * length) + after
 
 
 def get_json(name: str) -> dict:
     if name not in ["空", "荧"]:
         name = nic2name(name)
-    res = requests.get(f'https://api.minigg.cn/characters?query={name}')
-    if res.text == "undefined\n":
+    res = requests.get(f'https://info.minigg.cn/characters?query={name}')
+    if "errcode" in res.text:
         raise JSONDecodeError("", "", 0)
-    py_dict = yaml.safe_load(re.sub(r'\[? *(, *)+\]?', repl, res.text))
+    py_dict = res.json()
     return py_dict
 
 
 def get_json_mz(name: str) -> dict:
     name = nic2name(name)
-    res = requests.get(f'https://api.minigg.cn/constellations?query={name}')
-    if res.text == "undefined\n":
+    res = requests.get(f'https://info.minigg.cn/constellations?query={name}')
+    if "errcode" in res.text:
         raise JSONDecodeError("", "", 0)
-    py_dict = yaml.safe_load(re.sub(r'\[? *(, *)+\]?', repl, res.text))
+    py_dict = res.json()
     return py_dict
 
 

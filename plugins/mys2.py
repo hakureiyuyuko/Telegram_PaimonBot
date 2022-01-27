@@ -12,6 +12,7 @@ from defs.event import generate_event
 from defs.mys2 import award, sign, daily
 
 from ci import scheduler, app
+from defs.redis_load import redis
 
 SUPERUSERS = []
 
@@ -19,7 +20,7 @@ SUPERUSERS = []
 async def mys2_msg(client: Client, message: Message):
     text = message.text.replace("米游社", "")
     userid = message.from_user.id
-    if '添加 ' in text:
+    if '添加' in text:
         try:
             mes = text.replace('添加', '').strip()
             if not mes:
@@ -35,7 +36,9 @@ async def mys2_msg(client: Client, message: Message):
                                 f'例如：<code>米游社绑定uid123456789</code>。')
         except Exception as e:
             traceback.print_exc()
-            await message.reply(f'校验失败！请输入正确的Cookies！', quote=True)
+            await message.reply(f'校验失败！请输入正确的Cookies！获取 Cookie 请参考：'
+                                f'[link](https://github.com/Womsxd/AutoMihoyoBBS/'
+                                f'#%E8%8E%B7%E5%8F%96%E7%B1%B3%E6%B8%B8%E7%A4%BEcookie)', quote=True)
     elif '推送' in text:
         try:
             uid = await selectDB(userid, mode="uid")
@@ -46,7 +49,7 @@ async def mys2_msg(client: Client, message: Message):
                 im = await OpenPush(int(uid[0]), userid, "off", "StatusA")
                 await message.reply(im, quote=True)
         except Exception as e:
-            print(e.with_traceback)
+            traceback.print_exc()
             await message.reply("未找到uid绑定记录。", quote=True)
     elif '自动签到' in text:
         try:
@@ -58,7 +61,7 @@ async def mys2_msg(client: Client, message: Message):
                 im = await OpenPush(int(uid[0]), userid, "off", "StatusA")
                 await message.reply(im, quote=True)
         except Exception as e:
-            print(e.with_traceback)
+            traceback.print_exc()
             await message.reply("未找到uid绑定记录。", quote=True)
 
 
@@ -82,7 +85,7 @@ async def mys2_qun_msg(client: Client, message: Message):
                 im = await OpenPush(int(uid[0]), message.from_user.id, "off", "StatusB")
                 await message.reply(im)
         except Exception as e:
-            print(e.with_traceback)
+            traceback.print_exc()
             await message.reply("未绑定uid信息！")
     elif "推送" in text:
         try:
@@ -99,7 +102,7 @@ async def mys2_qun_msg(client: Client, message: Message):
                 im = await OpenPush(int(uid[0]), message.from_user.id, "off", "StatusA")
                 await message.reply(im)
         except Exception as e:
-            print(e.with_traceback)
+            traceback.print_exc()
             await message.reply("未绑定uid信息！")
     elif "每月统计" in text:
         try:
@@ -117,7 +120,7 @@ async def mys2_qun_msg(client: Client, message: Message):
             im = await sign(uid)
             await message.reply(im)
         except Exception as e:
-            print(e.with_traceback)
+            traceback.print_exc()
             await message.reply('未找到绑定信息')
     elif "效验全部" in text:
         im = await CheckDB()
@@ -129,7 +132,7 @@ async def mys2_qun_msg(client: Client, message: Message):
             mes = await daily("ask", uid)
             im = mes[0]['message']
         except Exception as e:
-            print(e.with_traceback)
+            traceback.print_exc()
             im = "没有找到绑定信息。"
         await message.reply(im)
     elif "绑定uid" in text:
@@ -148,6 +151,16 @@ async def push():
     daily_data = await daily()
     if daily_data is not None:
         for i in daily_data:
+            # 过滤重复推送
+            data = i['message'].split('==============')
+            if len(data) > 2:
+                text = "".join(data[1:-1])
+                data = redis.get("daily_" + str(i['qid']))
+                if data:
+                    if text == data.decode():
+                        continue
+                redis.set("daily_" + str(i['qid']), text)
+
             if i['gid'] == "on":
                 await app.send_message(int(i['qid']), i['message'])
             else:
