@@ -9,6 +9,7 @@ from pyrogram import filters as Filters
 from ci import me
 from plugins.enemies import enemies_msg
 from plugins.mys2 import mys2_msg, mys2_qun_msg
+from plugins.mihoyo import mihoyo_msg, mihoyo_qun_msg
 from plugins.start import welcome_command, ping_command, help_command, leave_command, help_callback
 from plugins.almanac import almanac_msg
 from plugins.challenge import tf_msg, wq_msg, zb_msg
@@ -109,6 +110,8 @@ async def process_private_msg(client: Client, message: Message):
         await log(client, message, '查询资源列表')
     if '米游社' in message.text:
         await mys2_msg(client, message)
+    if 'mihoyo' in message.text:
+        await mihoyo_msg(client, message)
     # 账号信息（cookie 过期过快  不推荐启用）
     # if '账号信息' in message.text or '用户信息' in message.text:
     #    await mys_msg(client, message)
@@ -187,6 +190,8 @@ async def process_group_msg(client: Client, message: Message):
     # 米游社功能
     if text.startswith('米游社'):
         await mys2_qun_msg(client, message)
+    if text.startswith('mihoyo'):
+        await mihoyo_qun_msg(client, message)
 
 
 @Client.on_message(Filters.photo)
@@ -200,6 +205,9 @@ async def process_photo(client: Client, message: Message):
     if text.startswith('米游社'):
         if message.chat.type == "supergroup":
             await mys2_qun_msg(client, message)
+    if text.startswith('mihoyo'):
+        if message.chat.type == "supergroup":
+            await mihoyo_qun_msg(client, message)
 
 
 @Client.on_message(Filters.document & Filters.group & ~Filters.edited)
@@ -211,6 +219,10 @@ async def process_document(client: Client, message: Message):
         print(message.document.mime_type)
         if message.document.mime_type in ["image/jpeg"]:
             await mys2_qun_msg(client, message)
+    if text.startswith('mihoyo'):
+        print(message.document.mime_type)
+        if message.document.mime_type in ["image/jpeg"]:
+            await mihoyo_qun_msg(client, message)
 
 
 @Client.on_message(Filters.voice & Filters.private & ~Filters.edited)
