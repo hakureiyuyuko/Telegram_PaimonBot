@@ -2,7 +2,7 @@ from ci import admin_id
 from pyrogram import Client
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
-HELP_MSG_PRE = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.3.1beta By Xtao-Labs\n\n' \
+HELP_MSG_PRE = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.3.2beta By Xtao-Labs\n\n' \
                '🔅 以下是小派蒙我学会了的功能（部分）：\n'
 HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
 ② [天赋/今日天赋] 查看今日天赋材料和角色
@@ -32,11 +32,11 @@ HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
    💠 <code>米游社添加（私聊）</code>
    💠 <code>米游社推送开启/关闭</code>
    💠 <code>米游社自动签到开启/关闭</code>
-   💠 <code>米游社每月统计（群聊）</code>
-   💠 <code>米游社签到（群聊）</code>
-   💠 <code>米游社当前状态（群聊）</code>
-   💠 <code>米游社绑定uid+游戏uid（群聊）</code>
-   💠 <code>米游社绑定mys+米游社id（群聊）</code>
+   💠 <code>米游社每月统计</code>
+   💠 <code>米游社签到</code>
+   💠 <code>米游社当前状态</code>
+   💠 <code>米游社绑定uid+游戏uid</code>
+   💠 <code>米游社绑定mys+米游社id</code>
    💠 <code>米游社uid+游戏uid（支持自定义图片）（群聊）</code>
    💠 <code>米游社mys+米游社id（支持自定义图片）（群聊）</code>
    💠 <code>米游社查询（支持回复、自定义图片）（群聊）</code>

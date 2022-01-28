@@ -70,6 +70,45 @@ async def mys2_msg(client: Client, message: Message):
         except Exception as e:
             traceback.print_exc()
             await message.reply("未找到uid绑定记录。", quote=True)
+    elif "每月统计" in text:
+        try:
+            uid = await selectDB(message.from_user.id, mode="uid")
+            uid = uid[0]
+            im = await award(uid)
+            await message.reply(im, quote=True)
+        except Exception as e:
+            traceback.print_exc()
+            await message.reply('未找到绑定信息', quote=True)
+    elif "签到" in text:
+        try:
+            uid = await selectDB(message.from_user.id, mode="uid")
+            uid = uid[0]
+            im = await sign(uid)
+            await message.reply(im, quote=True)
+        except Exception as e:
+            traceback.print_exc()
+            await message.reply('未找到绑定信息', quote=True)
+    elif "当前状态" in text:
+        try:
+            uid = await selectDB(message.from_user.id, mode="uid")
+            uid = uid[0]
+            mes = await daily("ask", uid)
+            im = mes[0]['message']
+        except Exception as e:
+            traceback.print_exc()
+            im = "没有找到绑定信息。"
+        await message.reply(im, quote=True)
+    elif "绑定uid" in text:
+        uid = text.replace("绑定uid", "")  # str
+        if is_chinese(uid):
+            await connectDB(message.from_user.id, uid)
+            await message.reply('绑定uid成功！', quote=True)
+        else:
+            await message.reply("非国区uid！", quote=True)
+    elif "绑定mys" in text:
+        mys = text.replace("绑定mys", "")  # str
+        await connectDB(message.from_user.id, None, mys)
+        await message.reply('绑定米游社id成功！', quote=True)
 
 
 async def mys2_qun_msg(client: Client, message: Message):
