@@ -39,7 +39,9 @@ Bot 实例: [@Genshin_All_Info_Bot](https://t.me/Genshin_All_Info_Bot)
 
 ## 特别感谢
 
-[genshinstats](https://github.com/thesadru/genshinstats/)
+[AutoMihoyoBBS](https://github.com/Womsxd/AutoMihoyoBBS)
+
+[genshinstats](https://github.com/thesadru/genshinstats)
 
 [GenshinUID](https://github.com/KimigaiiWuyi/GenshinUID)
 
@@ -48,4 +50,3 @@ Bot 实例: [@Genshin_All_Info_Bot](https://t.me/Genshin_All_Info_Bot)
 [PaimonBot](https://github.com/XiaoMiku01/PaimonBot)
 
 [YuanShen_User_Info](https://github.com/Womsxd/YuanShen_User_Info)
-

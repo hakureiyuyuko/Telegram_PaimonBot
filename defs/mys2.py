@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from pyrogram.types import Message
 
 from defs.db import GetAward, MysSign, GetSignInfo, GetSignList, GetDaily, cacheDB, GetMysInfo, \
-    errorDB, GetCharacter, GetInfo, GetSpiralAbyssInfo
+    errorDB, GetCharacter, GetInfo, GetSpiralAbyssInfo, MybSign
 from defs.event import ys_font
 
 WEAPON_PATH = os.path.join("assets", 'weapon')
@@ -120,6 +120,7 @@ async def award(uid):
 # 签到函数
 async def sign(uid):
     try:
+        # 任务签到
         sign_data = await MysSign(uid)
         sign_info = await GetSignInfo(uid)
         sign_info = sign_info['data']
@@ -136,6 +137,8 @@ async def sign(uid):
             mes_im = status
         sign_missed = sign_info['sign_cnt_missed']
         im = mes_im + "!" + "\n" + get_im + "\n" + f"本月漏签次数：{sign_missed}"
+        # 米游币
+        im += "\n<code>============</code>\n" + await MybSign(uid)
     except:
         im = "签到失败，请检查Cookies是否失效。"
     return im

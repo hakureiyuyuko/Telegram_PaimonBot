@@ -10,6 +10,7 @@ from shutil import copyfile
 
 import requests
 from ci import client
+from defs.mysbbs import MihoyoBbs
 
 mhyVersion = "2.11.1"
 
@@ -50,7 +51,7 @@ async def deal_ck(mes, qid):
     mysid_data = aid.group(0).split('=')
     mysid = mysid_data[1]
     cookie = ';'.join(filter(lambda x: x.split('=')[0] in [
-        "cookie_token", "account_id"], [i.strip() for i in mes.split(';')]))
+        "cookie_token", "account_id", "login_ticket", "stoken"], [i.strip() for i in mes.split(';')]))
     mys_data = await GetMysInfo(mysid, cookie)
     for i in mys_data['data']['list']:
         if i['game_id'] != 2:
@@ -255,6 +256,22 @@ async def GetSignInfo(Uid, ServerID="cn_gf01"):
         return data
     except:
         print("获取签到信息失败，请重试")
+
+
+async def MybSign(Uid):
+    try:
+        bbs = MihoyoBbs(await OwnerCookies(Uid))
+        if bbs.Task_do["bbs_Read_posts"] and bbs.Task_do["bbs_Share"]:
+            return f"今天已经全部完成了！一共获得{bbs.Today_have_getcoins}个米游币，目前有{bbs.Have_coins}个米游币"
+        await bbs.read_posts()
+        await bbs.share_post()
+        bbs.Get_taskslist()
+        return f"今天已经获得{bbs.Today_have_getcoins}个米游币，还能获得{bbs.Today_getcoins}个米游币，目前有{bbs.Have_coins}个米游币"
+    except Exception as e:
+        if str(e).find("Cookie 缺失") != -1:
+            return "Cookie 缺失 login_ticket，无法运行米游币任务。"
+        traceback.print_exc()
+        print("获取米游社任务信息失败，请重试")
 
 
 async def GetSignList():

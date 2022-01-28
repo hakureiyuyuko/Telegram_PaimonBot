@@ -2,7 +2,7 @@ from ci import admin_id
 from pyrogram import Client
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
-HELP_MSG_PRE = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.3.2beta By Xtao-Labs\n\n' \
+HELP_MSG_PRE = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.3.3beta By Xtao-Labs\n\n' \
                '🔅 以下是小派蒙我学会了的功能（部分）：\n'
 HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
 ② [天赋/今日天赋] 查看今日天赋材料和角色
