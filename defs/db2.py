@@ -135,7 +135,11 @@ async def OwnerCookies(uid):
 async def MysSign(Uid):
     try:
         gs.set_cookie(await OwnerCookies(Uid))
-        return gs.claim_daily_reward(Uid, lang='zh-cn')
+        data = gs.claim_daily_reward(Uid, lang='zh-cn')
+        if data:
+            return data
+        else:
+            return gs.get_daily_reward_info()
     except:
         print("签到失败，请重试")
 

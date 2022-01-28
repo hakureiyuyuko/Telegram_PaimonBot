@@ -39,6 +39,8 @@ Bot 实例: [@Genshin_All_Info_Bot](https://t.me/Genshin_All_Info_Bot)
 
 ## 特别感谢
 
+[genshinstats](https://github.com/thesadru/genshinstats/)
+
 [GenshinUID](https://github.com/KimigaiiWuyi/GenshinUID)
 
 [Genshin_Impact_bot](https://github.com/H-K-Y/Genshin_Impact_bot)

@@ -13,6 +13,7 @@ from pyrogram.types import Message
 
 from defs.db2 import MysSign, GetDaily, cacheDB, GetMysInfo, errorDB, GetInfo, GetSpiralAbyssInfo
 from defs.event import ys_font
+from genshinstats.daily import DailyRewardInfo
 
 WEAPON_PATH = os.path.join("assets", 'weapon')
 BG_PATH = os.path.join("assets", "bg")
@@ -80,9 +81,13 @@ daily_im = '''
 async def sign(uid):
     try:
         sign_data = await MysSign(uid)
-        if sign_data is not None:
-            mes_im = "签到成功"
-            get_im = f"本次签到获得{sign_data['name']}x{sign_data['cnt']}"
+        if sign_data:
+            if isinstance(sign_data, DailyRewardInfo):
+                mes_im = "已经签到过了！"
+                get_im = f"本月已经签到了 {sign_data.claimed_rewards} 天"
+            else:
+                mes_im = "签到成功"
+                get_im = f"本次签到获得{sign_data['name']}x{sign_data['cnt']}"
             im = mes_im + "!" + "\n" + get_im
         else:
             im = "签到失败，请检查Cookies是否失效。"
@@ -125,7 +130,7 @@ async def daily(mode="push", uid=None):
             finished_expedition_num = 0
             expedition_info: List[str] = []
             for expedition in dailydata['expeditions']:
-                avatar: str = expedition['icon'][89:-4]
+                avatar: str = expedition['icon'][92:-4]
                 try:
                     avatar_name: str = avatar_json[avatar]
                 except KeyError:
