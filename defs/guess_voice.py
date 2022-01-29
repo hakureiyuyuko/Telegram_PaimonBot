@@ -8,18 +8,11 @@ from os.path import exists
 from apscheduler.triggers.date import DateTrigger
 from pyrogram import Client
 from pyrogram.types import Message
-from sqlitedict import SqliteDict
 
+from defs.gacha.utils import init_db
 from ci import scheduler, app
 
 data_path = os.path.join("assets", "voice")
-
-
-def init_db(db_dir, db_name) -> SqliteDict:
-    return SqliteDict(os.path.join(db_dir, db_name),
-                      encode=json.dumps,
-                      decode=json.loads,
-                      autocommit=True)
 
 
 def get_chars(data: list) -> list:

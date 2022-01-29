@@ -9,6 +9,7 @@ from pyrogram import filters as Filters
 from ci import me
 from defs.guess_voice import get_chars
 from plugins.enemies import enemies_msg
+from plugins.gacha import gacha_msg
 from plugins.guess_voice import guess_voice, process_guess
 from plugins.mys2 import mys2_msg, mys2_qun_msg
 from plugins.mihoyo import mihoyo_msg, mihoyo_qun_msg
@@ -132,7 +133,7 @@ async def process_group_msg(client: Client, message: Message):
         await log(client, message, '查询武器资料')
         return
     # 副本武器
-    if text[-2:] == '武器':
+    if message.text == "武器":
         await wq_msg(client, message)
         await log(client, message, '查询副本武器')
     # 黄历
@@ -196,6 +197,8 @@ async def process_group_msg(client: Client, message: Message):
         await mihoyo_qun_msg(client, message)
     if text.startswith("猜语音"):
         await guess_voice(client, message)
+    if text.startswith("抽卡"):
+        await gacha_msg(client, message)
     # 处理猜语音游戏
     await process_guess(client, message)
 
