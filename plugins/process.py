@@ -293,5 +293,5 @@ async def inline_process(client: Client, query: InlineQuery):
                 switch_pm_parameter="help",
             )
     await query.answer(data,
-                       switch_pm_text=f'{emoji.KEY} 目前已经索引了 {chara_count} 个角色',
+                       switch_pm_text=f'{emoji.KEY} 搜索了 {chara_count} 个角色的 {len(voice_data.keys())} 条语音',
                        switch_pm_parameter="help",)

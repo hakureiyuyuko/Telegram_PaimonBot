@@ -35,7 +35,8 @@ def get_key_list(data: list, key: str) -> list:
 
 def choice_voice(data: list) -> str:
     long_key = ['感兴趣的见闻', '关于神之眼', '生日', '爱好', '讨厌的食物', '想要了解', '有什么想要分享',
-                '突破的感觉', '喜欢的食物', '烦恼', '角色待机', '角色死亡']
+                '突破的感觉', '喜欢的食物', '烦恼', '角色待机', '角色死亡', '关于', '初次见面',
+                '的时候', '早上好', '中午好', '晚上好', '晚安']
     data_ = []
     for i in data:
         for k in long_key:
