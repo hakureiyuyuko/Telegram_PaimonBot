@@ -9,6 +9,7 @@ bot_token: str = ""
 admin_id: int = 0
 bot_token = config.get("basic", "bot_token", fallback=bot_token)
 admin_id = config.getint("basic", "admin", fallback=admin_id)
+guess_time = 30  # 猜语音游戏持续时间
 """ Init httpx client """
 # 使用自定义 UA
 headers = {

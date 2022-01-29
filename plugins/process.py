@@ -7,7 +7,9 @@ from pyrogram.types import Message, InlineQuery, CallbackQuery
 from pyrogram import filters as Filters
 
 from ci import me
+from defs.guess_voice import get_chars
 from plugins.enemies import enemies_msg
+from plugins.guess_voice import guess_voice, process_guess
 from plugins.mys2 import mys2_msg, mys2_qun_msg
 from plugins.mihoyo import mihoyo_msg, mihoyo_qun_msg
 from plugins.start import welcome_command, ping_command, help_command, leave_command, help_callback
@@ -192,6 +194,10 @@ async def process_group_msg(client: Client, message: Message):
         await mys2_qun_msg(client, message)
     if text.startswith('mihoyo'):
         await mihoyo_qun_msg(client, message)
+    if text.startswith("原神猜语音"):
+        await guess_voice(client, message)
+    # 处理猜语音游戏
+    await process_guess(client, message)
 
 
 @Client.on_message(Filters.photo)
@@ -247,6 +253,7 @@ voice_data = None
 if exists(f"assets{sep}voice{sep}voice.json"):
     with open(f"assets{sep}voice{sep}voice.json", "r", encoding='utf-8') as f:
         voice_data = json.load(f)
+    chara_count = len(get_chars(voice_data))
 
 
 @Client.on_inline_query()
@@ -257,10 +264,15 @@ async def inline_process(client: Client, query: InlineQuery):
     if not voice_data:
         return
     data_ = voice_data
+    data__ = []
     for index, value in enumerate(data_):
         if len(text) == 0:
+            chara_name = value.split(" ")[0]
+            if chara_name in data__:
+                continue
             data.append(InlineQueryResultCachedDocument(value, file_id=data_[value], caption=value))
             nums += 1
+            data__.append(chara_name)
         else:
             skip = False
             for i in text:
@@ -269,12 +281,14 @@ async def inline_process(client: Client, query: InlineQuery):
             if not skip:
                 data.append(InlineQueryResultCachedDocument(value, file_id=data_[value], caption=value))
                 nums += 1
-        if nums >= 25:
+        if nums >= 30:
             break
     if nums == 0:
         return await query.answer(
                 results=[],
                 switch_pm_text=f'{emoji.CROSS_MARK} 字符串 "{" ".join(text)}" 没有搜索到任何结果',
-                switch_pm_parameter="start",
+                switch_pm_parameter="help",
             )
-    await query.answer(data)
+    await query.answer(data,
+                       switch_pm_text=f'{emoji.KEY} 目前已经索引了 {chara_count} 个角色',
+                       switch_pm_parameter="help",)

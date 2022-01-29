@@ -2,7 +2,7 @@ from ci import admin_id
 from pyrogram import Client
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
-HELP_MSG_PRE = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.3.4beta By Xtao-Labs\n\n' \
+HELP_MSG_PRE = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.3.5beta By Xtao-Labs\n\n' \
                '🔅 以下是小派蒙我学会了的功能（部分）：\n'
 HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
 ② [天赋/今日天赋] 查看今日天赋材料和角色
@@ -16,11 +16,11 @@ HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
    💠 <code>命座 重云一命</code>
 ⑦ [武器查询 武器名] 查看武器资料
    💠 <code>武器查询 沐浴龙血的剑</code>
-⑧ [原魔查询] 查看原魔资料
+⑧ [原魔查询 原魔名] 查看原魔资料
    💠 <code>原魔查询 丘丘人</code>
-⑨ [食物查询] 查看食物资料
+⑨ [食物查询 食物/食材名] 查看食物资料
    💠 <code>食物查询 甜甜花/甜甜花酿鸡</code>
-⑩ [圣遗物查询 武器名] 查看武器资料
+⑩ [圣遗物查询 圣遗物套装名] 查看圣遗物套装资料
    💠 <code>圣遗物查询 逆飞的流星</code>
 ======
 (11) [原神黄历] 查看随机生成的原神黄历
@@ -28,7 +28,8 @@ HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
 (13) [圣遗物评分] 我也想拥有这种分数的圣遗物(切实)
 (14) [哪里有 (资源名)] 查看资源的位置
 (15) [资源列表] 查看原神所有资源（私聊）
-(16) [米游社/mihoyo] 米游社/mihoyo相关功能（替换）
+(16) [原神猜语音] 和群友一起玩猜语音小游戏吧！（群聊）
+(17) [米游社/mihoyo] 米游社/mihoyo相关功能（替换）
    💠 <code>米游社添加（私聊）</code>
    💠 <code>米游社推送开启/关闭</code>
    💠 <code>米游社自动签到开启/关闭</code>
