@@ -84,6 +84,7 @@ class Guess:
         self.time = time
         self.group_id = group_id
         self.group = process.get(self.group_id)
+        self.forever = False
 
     def is_start(self):
         if not self.group:
@@ -96,26 +97,30 @@ class Guess:
     def set_end(self):
         process[self.group_id] = {}
 
+    def set_forever(self):
+        self.forever = True
+
     async def start(self):
         if exists(f"assets{os.sep}voice{os.sep}voice.json"):
             with open(f"assets{os.sep}voice{os.sep}voice.json", "r", encoding='utf-8') as f:
                 mys_list_raw = json.load(f)
         else:
-            return "没有找到声音数据"
+            return await app.send_message(self.group_id, "没有找到声音数据")
         mys_list = list(mys_list_raw.keys())
         if not mys_list:
-            return "没有找到声音数据"
+            return await app.send_message(self.group_id, "没有找到声音数据")
         chars = get_chars(mys_list)
         answer = random.choice(chars)
         file_id = get_key_list(mys_list, answer)
         file_id = choice_voice(file_id)
         if not file_id:
-            return "没有找到声音数据"
+            return await app.send_message(self.group_id, "没有找到声音数据")
 
         # 记录答案
         process[self.group_id] = {
             'start': True,
             'answer': answer,
+            'forever': self.forever,
             'ok': set()
         }
 
@@ -133,9 +138,9 @@ class Guess:
                           max_instances=1)
 
         print('答案: ' + answer)
-        return mys_list_raw[file_id]
+        return await app.send_voice(self.group_id, mys_list_raw[file_id])
 
-    async def end_game(self):
+    async def end_game(self, force: bool = False):
         self.group = process.get(self.group_id)
 
         ok_list = list(process[self.group_id]['ok'])
@@ -152,6 +157,7 @@ class Guess:
             traceback.print_exc()
 
         # 清理记录
+        forever = process[self.group_id]['forever']
         process[self.group_id] = {}
 
         # 记录到数据库给之后奖励做处理
@@ -164,6 +170,16 @@ class Guess:
             info['count'] += 1
             user_group[user] = info
         user_db[self.group_id] = user_group
+
+        # 无尽模式
+        if not force:
+            if forever:
+                self.forever = True
+                process[self.group_id] = {'start': True}
+                await self.start()
+        else:
+            if scheduler.get_job(f'{self.group_id}_guess_voice', 'default'):
+                scheduler.remove_job(f'{self.group_id}_guess_voice', 'default')
 
     # 只添加正确的答案
     async def add_answer(self, qq: int, msg: str):

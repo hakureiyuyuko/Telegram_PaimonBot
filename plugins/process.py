@@ -194,7 +194,7 @@ async def process_group_msg(client: Client, message: Message):
         await mys2_qun_msg(client, message)
     if text.startswith('mihoyo'):
         await mihoyo_qun_msg(client, message)
-    if text.startswith("原神猜语音"):
+    if text.startswith("猜语音"):
         await guess_voice(client, message)
     # 处理猜语音游戏
     await process_guess(client, message)
