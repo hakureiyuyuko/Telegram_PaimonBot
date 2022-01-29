@@ -8,7 +8,7 @@ from pyrogram import Client
 from pyrogram.types import Message
 
 from defs.db2 import deal_ck, selectDB, OpenPush, CheckDB, connectDB, deletecache
-from defs.mihoyo import sign, daily, draw_pic, draw_wordcloud
+from defs.mihoyo import sign, daily, draw_pic, draw_wordcloud, award
 
 from ci import scheduler, app, admin_id
 from defs.redis_load import redis
@@ -62,6 +62,15 @@ async def mihoyo_msg(client: Client, message: Message):
         except Exception as e:
             traceback.print_exc()
             await message.reply("未找到uid绑定记录。", quote=True)
+    elif "每月统计" in text:
+        try:
+            uid = await selectDB(message.from_user.id, mode="uid")
+            uid = uid[0]
+            im = await award(uid)
+            await message.reply(im, quote=True)
+        except Exception as e:
+            traceback.print_exc()
+            await message.reply('未找到绑定信息', quote=True)
     elif "签到" in text:
         try:
             uid = await selectDB(message.from_user.id, mode="uid")
@@ -134,8 +143,14 @@ async def mihoyo_qun_msg(client: Client, message: Message):
             traceback.print_exc()
             await message.reply("未绑定uid信息！")
     elif "每月统计" in text:
-        # need auth_key 不支持
-        await message.reply('暂不支持！')
+        try:
+            uid = await selectDB(message.from_user.id, mode="uid")
+            uid = uid[0]
+            im = await award(uid)
+            await message.reply(im)
+        except Exception as e:
+            traceback.print_exc()
+            await message.reply('未找到绑定信息')
     elif "签到" in text:
         try:
             uid = await selectDB(message.from_user.id, mode="uid")

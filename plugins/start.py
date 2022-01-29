@@ -2,7 +2,7 @@ from ci import admin_id
 from pyrogram import Client
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
-HELP_MSG_PRE = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.3.3beta By Xtao-Labs\n\n' \
+HELP_MSG_PRE = '<a href="https://git.io/JcbTD">PaimonBot</a> 0.3.4beta By Xtao-Labs\n\n' \
                '🔅 以下是小派蒙我学会了的功能（部分）：\n'
 HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
 ② [天赋/今日天赋] 查看今日天赋材料和角色
@@ -20,8 +20,8 @@ HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
    💠 <code>原魔查询 丘丘人</code>
 ⑨ [食物查询] 查看食物资料
    💠 <code>食物查询 甜甜花/甜甜花酿鸡</code>
-⑩ [武器查询 武器名] 查看武器资料
-   💠 <code>武器查询 沐浴龙血的剑</code>
+⑩ [圣遗物查询 武器名] 查看武器资料
+   💠 <code>圣遗物查询 逆飞的流星</code>
 ======
 (11) [原神黄历] 查看随机生成的原神黄历
 (12) [活动列表] 查看今日活动列表和祈愿列表

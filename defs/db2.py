@@ -1,6 +1,7 @@
 import sqlite3
 import re
 import traceback
+from datetime import datetime
 from shutil import copyfile
 import genshinstats as gs
 
@@ -130,6 +131,17 @@ async def OwnerCookies(uid):
     except:
         return
     return cookies
+
+
+async def GetAward(Uid):
+    try:
+        gs.set_cookie(await OwnerCookies(Uid))
+        return gs.fetch_endpoint("https://hk4e-api-os.mihoyo.com/event/ysledgeros/month_info",
+                                 params=dict(uid=Uid, region=gs.utils.recognize_server(Uid),
+                                             month=datetime.now().month, lang='zh=cn'))
+    except:
+        traceback.print_exc()
+        print("访问失败，请重试！")
 
 
 async def MysSign(Uid):

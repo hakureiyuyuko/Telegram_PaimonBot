@@ -94,7 +94,7 @@ async def process_private_msg(client: Client, message: Message):
         await fortunate_msg(client, message)
         await log(client, message, '查询今日运势')
     # 圣遗物查询
-    if '圣遗物详情' in message.text:
+    if '圣遗物查询' in message.text:
         await artifacts_msg(client, message)
         await log(client, message, '查询圣遗物详情')
     # 圣遗物评分
@@ -173,7 +173,7 @@ async def process_group_msg(client: Client, message: Message):
         await set_fortunate_img(client, message)
         await log(client, message, '设置运势角色')
     # 圣遗物查询
-    if text.startswith('圣遗物详情'):
+    if text.startswith('圣遗物查询'):
         await artifacts_msg(client, message)
         await log(client, message, '查询圣遗物详情')
     # 圣遗物评分

@@ -4,7 +4,7 @@ from defs.artifacts import get_artifacts
 
 
 async def artifacts_msg(client: Client, message: Message):
-    name = message.text.replace('圣遗物详情', '').strip()
+    name = message.text.replace('圣遗物查询', '').strip()
     text, url = await get_artifacts(name)
     if url:
         await message.reply_photo(photo=url, caption=text, quote=True)

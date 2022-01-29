@@ -11,7 +11,7 @@ from wordcloud import WordCloud
 from PIL import Image, ImageDraw, ImageFilter
 from pyrogram.types import Message
 
-from defs.db2 import MysSign, GetDaily, cacheDB, GetMysInfo, errorDB, GetInfo, GetSpiralAbyssInfo
+from defs.db2 import MysSign, GetDaily, cacheDB, GetMysInfo, errorDB, GetInfo, GetSpiralAbyssInfo, GetAward
 from defs.event import ys_font
 from genshinstats.daily import DailyRewardInfo
 
@@ -65,6 +65,15 @@ avatar_json = {
     "Kokomi": "珊瑚宫心海",
     "Shenhe": "申鹤"
 }
+award_json = {
+    "Mail": "邮件奖励",
+    "Events": "活动奖励",
+    "Adventure": "冒险奖励",
+    "Daily Activity": "每日活跃",
+    "Quests": "任务奖励",
+    "Spiral Abyss": "深境螺旋",
+    "Other": "其他",
+}
 daily_im = '''
 *数据刷新可能存在一定延迟，请以当前游戏实际数据为准{}
 ==============
@@ -75,6 +84,52 @@ daily_im = '''
 探索派遣：
 总数/完成/上限：{}/{}/{}
 {}'''
+month_im = '''
+==============
+{}
+UID：{}
+==============
+本日获取原石：{}
+本日获取摩拉：{}
+==============
+本月获取原石：{}
+本月获取摩拉：{}
+==============
+上月获取原石：{}
+上月获取摩拉：{}
+==============
+原石收入组成：
+{}=============='''
+
+
+def trans_award(string: str) -> str:
+    if string in award_json:
+        return award_json[string]
+    else:
+        return string
+
+
+async def award(uid):
+    data = await GetAward(uid)
+    if data is None:
+        # 等级太低，或者不够活跃
+        return "暂无每月统计信息"
+    nickname = data['nickname']
+    day_stone = data['day_data']['current_primogems']
+    day_mora = data['day_data']['current_mora']
+    month_stone = data['month_data']['current_primogems']
+    month_mora = data['month_data']['current_mora']
+    lastmonth_stone = data['month_data']['last_primogems']
+    lastmonth_mora = data['month_data']['last_mora']
+    group_str = ''
+    for i in data['month_data']['group_by']:
+        group_str = group_str + \
+                    trans_award(i['action']) + "：" + str(i['num']) + \
+                    "（" + str(i['percent']) + "%）" + '\n'
+
+    im = month_im.format(nickname, uid, day_stone, day_mora, month_stone, month_mora,
+                         lastmonth_stone, lastmonth_mora, group_str)
+    return im
 
 
 # 签到函数
