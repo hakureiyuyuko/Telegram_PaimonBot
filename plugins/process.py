@@ -225,13 +225,15 @@ async def process_document(client: Client, message: Message):
     message.text = text
 
     if text.startswith('米游社'):
-        print(message.document.mime_type)
         if message.document.mime_type in ["image/jpeg"]:
             await mys2_qun_msg(client, message)
     if text.startswith('mihoyo'):
-        print(message.document.mime_type)
         if message.document.mime_type in ["image/jpeg"]:
             await mihoyo_qun_msg(client, message)
+    if text.startswith('圣遗物评分'):
+        if message.document.mime_type in ["image/jpeg", "image/png"]:
+            await artifact_rate_msg(client, message)
+            await log(client, message, '查询圣遗物详情')
 
 
 @Client.on_message(Filters.voice & Filters.private & ~Filters.edited)

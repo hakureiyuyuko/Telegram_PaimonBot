@@ -1,9 +1,11 @@
+from base64 import b64encode
+
 import requests
 from secrets import choice
-from pyrogram import Client
+from pyrogram import Client, filters
 from pyrogram.types import Message
-from defs.artifact_rate import *
-from base64 import b64encode
+from defs.artifact_rate import get_artifact_attr, rate_artifact
+
 from os import remove
 
 
@@ -29,7 +31,10 @@ def get_yiyan(get_yiyan_num):
             "5": ["多吃点好的，出门注意安全", "晒吧，欧不可耻，只是可恨", "没啥好说的，让我自闭一会", "达成成就“高分圣遗物”",
                   "怕不是以后开宝箱只能开出卷心菜", "吃了吗？没吃的话，吃我一拳", "我觉得这个游戏有问题", "这合理吗",
                   "这东西没啥用，给我吧（柠檬）", "？？？ ？？？？"]}
-    data_ = int(float(get_yiyan_num))
+    try:
+        data_ = int(float(get_yiyan_num))
+    except ValueError:
+        data_ = 0
     if data_ == 100:
         return choice(data["5"])
     return choice(data[str(data_ // 20 + 1)])
@@ -50,6 +55,30 @@ async def artifact_rate_msg(client: Client, message: Message):
     if 'err' in artifact_attr.keys():
         err_msg = artifact_attr["full"]["message"]
         return await msg.edit(f"发生了点小错误：\n{err_msg}")
+    if 'star' not in artifact_attr:
+        msg_ = await message.reply('无法识别圣遗物星级，请手动输入数字（1-5）：', quote=True)
+        answer = await client.listen(message.chat.id, filters=filters.user(message.from_user.id))  # noqa
+        try:
+            artifact_attr['star'] = int(answer.text)
+        except ValueError:
+            artifact_attr['star'] = 4
+        await msg_.delete()
+        try:
+            await answer.delete()
+        except:
+            pass
+    if 'level' not in artifact_attr:
+        msg_ = await message.reply('无法识别圣遗物等级，请手动输入数字（1-20）：', quote=True)
+        answer = await client.listen(message.chat.id, filters=filters.user(message.from_user.id))  # noqa
+        try:
+            artifact_attr['level'] = int(answer.text)
+        except ValueError:
+            artifact_attr['level'] = 1
+        await msg_.delete()
+        try:
+            await answer.delete()
+        except:
+            pass
     await msg.edit("识图成功！\n正在评分中...")
     rate_result = await rate_artifact(artifact_attr)
     if 'err' in rate_result.keys():

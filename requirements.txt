@@ -1,5 +1,6 @@
 Pyrogram>=1.3.5
 Tgcrypto>=1.2.3
+pyromod
 Pillow>=8.1.0
 Redis>=3.5.3
 bs4>=0.0.1
