@@ -25,10 +25,10 @@ def get_chars(data: list) -> list:
 
 
 def get_key_list(data: list, key: str) -> list:
-    # 获取包含key的数据
+    # 获取角色所有语音
     data_ = []
     for i in data:
-        if key in i:
+        if i.startswith(key):
             data_.append(i)
     return data_
 
