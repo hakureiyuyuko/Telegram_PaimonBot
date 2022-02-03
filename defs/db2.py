@@ -3,7 +3,7 @@ import re
 import traceback
 from datetime import datetime
 from shutil import copyfile
-import genshinstats as gs
+import genshinstats.genshinstats as gs
 
 
 async def cookiesDB(uid, Cookies, qid):

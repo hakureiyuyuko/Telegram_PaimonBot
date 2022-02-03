@@ -1,0 +1,3 @@
+[submodule "genshinstats"]
+	path = genshinstats
+	url = https://github.com/thesadru/genshinstats.git

@@ -13,7 +13,7 @@ from pyrogram.types import Message
 
 from defs.db2 import MysSign, GetDaily, cacheDB, GetMysInfo, errorDB, GetInfo, GetSpiralAbyssInfo, GetAward
 from defs.event import ys_font
-from genshinstats.daily import DailyRewardInfo
+from genshinstats.genshinstats.daily import DailyRewardInfo
 
 WEAPON_PATH = os.path.join("assets", 'weapon')
 BG_PATH = os.path.join("assets", "bg")
