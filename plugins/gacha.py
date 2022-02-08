@@ -1,5 +1,6 @@
 import traceback
 from datetime import timedelta
+from asyncio import sleep
 
 from pyrogram import Client
 from pyrogram.types import Message
@@ -20,7 +21,9 @@ async def gacha_msg(client: Client, message: Message):
             return await message.reply("出现错误，请联系管理员")
     wish_info = await wish(message.from_user.id, gacha_type, gacha_data).ten()
     img = await wish_ui.ten_to_img(wish_info)
-    await message.reply_photo(img)
+    msg = await message.reply_photo(img)
+    await sleep(60)
+    await msg.delete()
 
 
 async def handle_msg(client: Client, message: Message):

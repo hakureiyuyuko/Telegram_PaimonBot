@@ -197,8 +197,8 @@ async def process_group_msg(client: Client, message: Message):
         await mihoyo_qun_msg(client, message)
     if text.startswith("猜语音"):
         await guess_voice(client, message)
-    # if text.startswith("抽卡"):
-    #     await gacha_msg(client, message)
+    if text.startswith("抽卡"):
+        await gacha_msg(client, message)
     # 处理猜语音游戏
     await process_guess(client, message)
 
