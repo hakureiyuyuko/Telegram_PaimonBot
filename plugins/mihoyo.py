@@ -23,7 +23,11 @@ async def mihoyo_msg(client: Client, message: Message):
         try:
             mes = text.replace('添加', '').strip()
             if not mes:
-                return await message.reply_text("获取 Cookie 请登录：https://account.mihoyo.com/#/login 后按F12运行\n<code>var cookie=document.cookie;var ask=confirm('Cookie:'+cookie+'\\n\\nDo you want to copy the cookie to the clipboard?');if(ask==true){copy(cookie);msg=cookie}else{msg='Cancel'}</code>\n然后点击OK即可", quote=True)
+                return await message.reply_text("获取 Cookie 请登录：https://account.mihoyo.com/#/login 后按F12运行\n"
+                                                "<code>var cookie=document.cookie;var ask=confirm"
+                                                "('Cookie:'+cookie+'\\n\\nDo you want to copy the cookie to "
+                                                "the clipboard?');if(ask==true){copy(cookie);msg=cookie}else"
+                                                "{msg='Cancel'}</code>\n然后点击OK即可", quote=True)
             await deal_ck(mes, userid)
             await message.reply(f'添加Cookies成功！\n'
                                 f'Cookies属于个人重要信息，如果你是在不知情的情况下添加，'

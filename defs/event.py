@@ -1,3 +1,4 @@
+import re
 import time
 import datetime
 import os
@@ -18,33 +19,40 @@ def generate_event():
         "https://hk4e-api.mihoyo.com/common/hk4e_cn/announcement/api/getAnnList?game=hk4e&game_biz=hk4e_cn&lang=zh-cn"
         "&bundle_id=hk4e_cn&platform=pc&region=cn_gf01&level=55&uid=100000000").json()
     now_time = datetime.datetime.now().strftime('%Y-%m-%d')
-    raw_time_data = get(
-        "https://api-takumi.mihoyo.com/event/bbs_activity_calendar/getActList?"
-        "time={}&game_biz=ys_cn&page=1&tag_id=0".format(now_time)).json()
+    # raw_time_data = get(
+    #     "https://api-takumi.mihoyo.com/event/bbs_activity_calendar/getActList?"
+    #     "time={}&game_biz=ys_cn&page=1&tag_id=0".format(now_time)).json()
+    raw_time_data = get("https://hk4e-api.mihoyo.com/common/hk4e_cn/announcement/api/"
+                        "getAnnContent?game=hk4e&game_biz=hk4e_cn&lang=zh-cn&bundle_id=hk4e_cn"
+                        "&platform=pc&region=cn_gf01&level=55&uid=100000000").json()
 
     data = raw_data["data"]["list"][1]["list"]
 
     event_data = {"gacha_event": [], "normal_event": [], "other_event": []}
     for k in data:
-        for i in raw_time_data["data"]["act_list"]:
-            if i["name"] == k["title"]:
-                k["act_begin_time"] = i["act_begin_time"]
-                k["act_end_time"] = i["act_end_time"]
-            elif "神铸赋形" in k["title"] and "神铸赋形" in i["name"]:
-                k["act_begin_time"] = i["act_begin_time"]
-                k["act_end_time"] = i["act_end_time"]
-            elif "传说任务" in k["title"]:
-                k["act_begin_time"] = k["start_time"]
-                k["act_end_time"] = "永久开放"
-            elif k["subtitle"] in i["name"]:
-                k["act_begin_time"] = i["act_begin_time"]
-                k["act_end_time"] = i["act_end_time"]
-            else:
-                k["act_begin_time"] = "{}-{}-{} {}".format(k["start_time"].split()[0].split("-")[0],
-                                                           k["start_time"].split()[0].split("-")[1],
-                                                           str(int(k["start_time"].split()[0].split("-")[2]) + 2),
-                                                           "10:00:00(?)")
-                k["act_end_time"] = k["end_time"]
+        for i in raw_time_data["data"]["list"]:
+            if k["title"] in i["title"]:
+                time_data = re.findall(r"[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}", i["content"])
+                time_limit_end = re.findall(r"起至[0-9]{1}.[0-9]{1}版本结束", i["content"])
+                time_limit_start = re.findall(r"[0-9]{1}.[0-9]{1}版本更新后", i["content"])
+                if len(time_data) == 2:
+                    k["act_begin_time"] = time_data[0]
+                    k["act_end_time"] = time_data[1]
+                elif len(time_data) == 1 and len(time_limit_end) == 1:
+                    k["act_begin_time"] = time_data[0]
+                    k["act_end_time"] = time_limit_end[0]
+                elif len(time_data) == 1 and len(time_limit_start) == 1:
+                    k["act_begin_time"] = time_limit_start[0]
+                    k["act_end_time"] = time_data[0]
+                elif len(time_data) == 1:
+                    k["act_begin_time"] = time_data[0]
+                    k["act_end_time"] = "永久开放"
+                elif len(time_data) > 2:
+                    k["act_begin_time"] = time_data[0]
+                    k["act_end_time"] = k["end_time"]
+                elif len(time_data) == 0:
+                    k["act_begin_time"] = k["start_time"] + "(?)"
+                    k["act_end_time"] = k["end_time"] + "(?)"
 
         if "冒险助力礼包" in k["title"] or "纪行" in k["title"]:
             continue
