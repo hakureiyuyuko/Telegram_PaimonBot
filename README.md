@@ -12,7 +12,7 @@ Bot 实例: [@Genshin_All_Info_Bot](https://t.me/Genshin_All_Info_Bot)
 - [Obtaining Telegram API ID](https://core.telegram.org/api/obtaining_api_id) 申请 API ID 与 API Hash
 - 拉取项目
   ```bash
-  git clone https://github.com/Xtao-Labs/Telegram_PaimonBot.git
+  git clone --recursive https://github.com/Xtao-Labs/Telegram_PaimonBot.git
   cd Telegram_PaimonBot
   ```
 - 安装依赖
