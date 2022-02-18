@@ -22,30 +22,22 @@ HELP_MSG = """① [武器/今日武器] 查看今日武器材料和武器
    💠 <code>食物查询 甜甜花/甜甜花酿鸡</code>
 ⑩ [圣遗物查询 圣遗物套装名] 查看圣遗物套装资料
    💠 <code>圣遗物查询 逆飞的流星</code>
+======
 (11) [抽卡] 抽卡
+   💠 <code>抽卡</code>
+   💠 <code>抽卡 2</code>
    💠 <code>抽卡 武器</code>
    💠 <code>抽卡 常驻</code>
-======
 (12) [原神黄历] 查看随机生成的原神黄历
 (13) [活动列表] 查看今日活动列表和祈愿列表
 (14) [圣遗物评分] 我也想拥有这种分数的圣遗物(切实)
 (15) [哪里有 (资源名)] 查看资源的位置
 (16) [资源列表] 查看原神所有资源（私聊）
 (17) [猜语音] 和群友一起玩猜语音小游戏吧！（群聊）
+   💠 <code>猜语音</code>
    💠 <code>猜语音 无尽模式</code>
-(18) [米游社/mihoyo] 米游社/mihoyo相关功能（替换）米游社开头是国服 mihoyo开头是国际服
-   💠 <code>米游社添加（私聊）</code>
-   💠 <code>米游社推送开启/关闭</code>
-   💠 <code>米游社自动签到开启/关闭</code>
-   💠 <code>米游社每月统计</code>
-   💠 <code>米游社签到</code>
-   💠 <code>米游社当前状态</code>
-   💠 <code>米游社绑定uid+游戏uid</code>
-   💠 <code>米游社绑定mys+米游社id</code>
-   💠 <code>米游社uid+游戏uid（支持自定义图片）（群聊）</code>
-   💠 <code>米游社mys+米游社id（支持自定义图片）（群聊）</code>
-   💠 <code>米游社查询（支持回复、自定义图片）（群聊）</code>
-   💠 <code>米游社查询uid（支持自定义图片）（群聊）</code>"""
+(18) [米游社/hoyolab] 米游社/hoyolab相关功能
+   💠 <a href="https://telegra.ph/PaimonBot-02-18">点击查看</a>"""
 
 
 async def welcome_command(client: Client, message: Message):

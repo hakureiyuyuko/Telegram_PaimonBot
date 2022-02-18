@@ -17,7 +17,7 @@ SUPERUSERS = [admin_id]
 
 
 async def mihoyo_msg(client: Client, message: Message):
-    text = message.text.replace("mihoyo", "")
+    text = message.text.replace("hoyolab", "")
     userid = message.from_user.id
     if '添加' in text:
         try:
@@ -34,8 +34,8 @@ async def mihoyo_msg(client: Client, message: Message):
                                 f'请马上修改mihoyo账户密码，保护个人隐私！\n'
                                 f'<code>=============</code>\n'
                                 f'如果需要【开启自动签到】和【开启推送】还需要使用命令 '
-                                f'<code>mihoyo绑定uid</code>绑定你的uid。\n'
-                                f'例如：<code>mihoyo绑定uid123456789</code>。')
+                                f'<code>hoyolab绑定uid</code>绑定你的uid。\n'
+                                f'例如：<code>hoyolab绑定uid123456789</code>。')
         except Exception as e:
             traceback.print_exc()
             await message.reply(f'校验失败！请输入正确的Cookies！获取 Cookie 请参考：'
@@ -103,7 +103,7 @@ async def mihoyo_msg(client: Client, message: Message):
     elif "绑定mys" in text:
         mys = text.replace("绑定mys", "")  # str
         await connectDB(message.from_user.id, None, mys)
-        await message.reply('绑定米游社id成功！', quote=True)
+        await message.reply('绑定hoyolabid成功！', quote=True)
 
 
 async def mihoyo_qun_msg(client: Client, message: Message):
@@ -226,7 +226,7 @@ async def mihoyo_qun_msg(client: Client, message: Message):
             try:
                 uid = re.findall(r"\d+", text)[0]  # str
             except IndexError:
-                return await message.reply("米游社 id 格式错误！")
+                return await message.reply("hoyolab id 格式错误！")
             nickname = message.from_user.first_name
             nickname = nickname if len(nickname) < 10 else (nickname[:10] + "...")
             try:
