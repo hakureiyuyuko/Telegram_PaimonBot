@@ -107,7 +107,7 @@ async def mihoyo_msg(client: Client, message: Message):
 
 
 async def mihoyo_qun_msg(client: Client, message: Message):
-    text = message.text.replace("mihoyo", "")
+    text = message.text.replace("hoyolab", "")
 
     qid = message.from_user.id
     at = message.reply_to_message
