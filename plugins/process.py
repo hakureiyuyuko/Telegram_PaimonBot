@@ -113,7 +113,7 @@ async def process_private_msg(client: Client, message: Message):
         await log(client, message, '查询资源列表')
     if '米游社' in message.text:
         await mys2_msg(client, message)
-    if 'mihoyo' in message.text:
+    if 'hoyolab' in message.text:
         await mihoyo_msg(client, message)
     # 账号信息（cookie 过期过快  不推荐启用）
     # if '账号信息' in message.text or '用户信息' in message.text:
@@ -193,7 +193,7 @@ async def process_group_msg(client: Client, message: Message):
     # 米游社功能
     if text.startswith('米游社'):
         await mys2_qun_msg(client, message)
-    if text.startswith('mihoyo'):
+    if text.startswith('hoyolab'):
         await mihoyo_qun_msg(client, message)
     if text.startswith("猜语音"):
         await guess_voice(client, message)
@@ -214,7 +214,7 @@ async def process_photo(client: Client, message: Message):
     if text.startswith('米游社'):
         if message.chat.type == "supergroup":
             await mys2_qun_msg(client, message)
-    if text.startswith('mihoyo'):
+    if text.startswith('hoyolab'):
         if message.chat.type == "supergroup":
             await mihoyo_qun_msg(client, message)
 
@@ -227,7 +227,7 @@ async def process_document(client: Client, message: Message):
     if text.startswith('米游社'):
         if message.document.mime_type in ["image/jpeg"]:
             await mys2_qun_msg(client, message)
-    if text.startswith('mihoyo'):
+    if text.startswith('hoyolab'):
         if message.document.mime_type in ["image/jpeg"]:
             await mihoyo_qun_msg(client, message)
     if text.startswith('圣遗物评分'):
